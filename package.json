@@ -1,0 +1,15 @@
+{
+  "name": "codengine",
+  "private": true,
+  "description": "Run software from a functional diagram. Monorepo root.",
+  "license": "MIT",
+  "packageManager": "pnpm@10.13.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  }
+}

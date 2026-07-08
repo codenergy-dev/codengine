@@ -1,0 +1,13 @@
+packages:
+  - 'codengine-*'
+
+# Pin exact versions on install (no ^/~ ranges).
+saveExact: true
+
+# --- Supply-chain hardening (see AGENTS.md) ---
+# Quarantine freshly published versions; most compromised releases are caught and
+# yanked within this window. Value is in minutes (10080 = 7 days).
+minimumReleaseAge: 10080
+# No dependency may run install lifecycle scripts. Add a package here only after
+# reviewing why it needs a build step (e.g. a native addon).
+onlyBuiltDependencies: []
