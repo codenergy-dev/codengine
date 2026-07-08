@@ -1,0 +1,369 @@
+[
+  {
+    "name": "yuml.dir",
+    "function": "dir",
+    "path": "yuml",
+    "workflow": "ast",
+    "args": {},
+    "fanIn": [],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [],
+    "executionPlan": [
+      "yuml.dir"
+    ]
+  },
+  {
+    "name": "extension.extensionPath",
+    "function": "extensionPath",
+    "path": "extension",
+    "workflow": "ast",
+    "args": {
+      "path$": "extensionPath"
+    },
+    "fanIn": [],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [],
+    "executionPlan": [
+      "extension.extensionPath"
+    ]
+  },
+  {
+    "name": "load",
+    "function": "load",
+    "path": null,
+    "workflow": "ast",
+    "args": {},
+    "fanIn": [],
+    "fanInNullable": [],
+    "fanOut": [
+      "path.format",
+      "loadDart",
+      "loadTypeScript"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "load",
+      "yuml.dir",
+      "path.format",
+      "loadDart",
+      "loadTypeScript",
+      "extension.extensionPath",
+      "path.join",
+      "child-process.spawnSync",
+      "fs.existsSync",
+      "fs.readFileSync",
+      "json.parse",
+      "output"
+    ]
+  },
+  {
+    "name": "loadDart",
+    "function": "loadDart",
+    "path": null,
+    "workflow": "ast",
+    "args": {
+      "command": "dart",
+      "arg1": "run",
+      "ast": "ast/dart/main.dart"
+    },
+    "fanIn": [
+      "load"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "path.join",
+      "child-process.spawnSync"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "load"
+    ],
+    "executionPlan": [
+      "loadDart",
+      "loadTypeScript",
+      "extension.extensionPath",
+      "path.join",
+      "yuml.dir",
+      "path.format",
+      "child-process.spawnSync",
+      "fs.existsSync",
+      "fs.readFileSync",
+      "json.parse",
+      "output"
+    ]
+  },
+  {
+    "name": "loadTypeScript",
+    "function": "loadTypeScript",
+    "path": null,
+    "workflow": "ast",
+    "args": {
+      "command": "node",
+      "ast": "ast/typescript/main.js"
+    },
+    "fanIn": [
+      "load"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "path.join",
+      "child-process.spawnSync"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "load"
+    ],
+    "executionPlan": [
+      "loadTypeScript",
+      "loadDart",
+      "extension.extensionPath",
+      "path.join",
+      "yuml.dir",
+      "path.format",
+      "child-process.spawnSync",
+      "fs.existsSync",
+      "fs.readFileSync",
+      "json.parse",
+      "output"
+    ]
+  },
+  {
+    "name": "fs.readFileSync",
+    "function": "readFileSync",
+    "path": "fs",
+    "workflow": "ast",
+    "args": {
+      "encoding": "utf-8"
+    },
+    "fanIn": [
+      "fs.existsSync"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "json.parse"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "load",
+      "yuml.dir",
+      "path.format",
+      "loadTypeScript",
+      "loadDart",
+      "extension.extensionPath",
+      "path.join",
+      "child-process.spawnSync",
+      "fs.existsSync"
+    ],
+    "executionPlan": [
+      "fs.readFileSync",
+      "json.parse",
+      "output"
+    ]
+  },
+  {
+    "name": "json.parse",
+    "function": "parse",
+    "path": "json",
+    "workflow": "ast",
+    "args": {
+      "^data": "text"
+    },
+    "fanIn": [
+      "fs.readFileSync"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "output"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "load",
+      "yuml.dir",
+      "path.format",
+      "loadTypeScript",
+      "loadDart",
+      "extension.extensionPath",
+      "path.join",
+      "child-process.spawnSync",
+      "fs.existsSync",
+      "fs.readFileSync"
+    ],
+    "executionPlan": [
+      "json.parse",
+      "output"
+    ]
+  },
+  {
+    "name": "output",
+    "function": "output",
+    "path": null,
+    "workflow": "ast",
+    "args": {},
+    "fanIn": [
+      "json.parse"
+    ],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "load",
+      "yuml.dir",
+      "path.format",
+      "loadTypeScript",
+      "loadDart",
+      "extension.extensionPath",
+      "path.join",
+      "child-process.spawnSync",
+      "fs.existsSync",
+      "fs.readFileSync",
+      "json.parse"
+    ],
+    "executionPlan": [
+      "output"
+    ]
+  },
+  {
+    "name": "path.format",
+    "function": "format",
+    "path": "path",
+    "workflow": "ast",
+    "args": {
+      "ext": ".json",
+      "path$": "output"
+    },
+    "fanIn": [
+      "yuml.dir",
+      "load"
+    ],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "load",
+      "yuml.dir"
+    ],
+    "executionPlan": [
+      "path.format"
+    ]
+  },
+  {
+    "name": "fs.existsSync",
+    "function": "existsSync",
+    "path": "fs",
+    "workflow": "ast",
+    "args": {
+      "^output": "path"
+    },
+    "fanIn": [
+      "child-process.spawnSync",
+      "path.format"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "fs.readFileSync"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "load",
+      "yuml.dir",
+      "path.format",
+      "loadTypeScript",
+      "loadDart",
+      "extension.extensionPath",
+      "path.join",
+      "child-process.spawnSync"
+    ],
+    "executionPlan": [
+      "fs.existsSync",
+      "fs.readFileSync",
+      "json.parse",
+      "output"
+    ]
+  },
+  {
+    "name": "path.join",
+    "function": "join",
+    "path": "path",
+    "workflow": "ast",
+    "args": {
+      "^extensionPath": "path",
+      "^ast": "path1",
+      "path$": "script"
+    },
+    "fanIn": [
+      "extension.extensionPath",
+      "loadDart",
+      "loadTypeScript"
+    ],
+    "fanInNullable": [
+      "loadDart",
+      "loadTypeScript"
+    ],
+    "fanOut": [
+      "child-process.spawnSync"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "load",
+      "loadTypeScript",
+      "loadDart",
+      "extension.extensionPath"
+    ],
+    "executionPlan": [
+      "path.join",
+      "yuml.dir",
+      "path.format",
+      "child-process.spawnSync",
+      "fs.existsSync",
+      "fs.readFileSync",
+      "json.parse",
+      "output"
+    ]
+  },
+  {
+    "name": "child-process.spawnSync",
+    "function": "spawnSync",
+    "path": "child-process",
+    "workflow": "ast",
+    "args": {
+      "^script": "arg2",
+      "^path": "arg3",
+      "^output": "arg4"
+    },
+    "fanIn": [
+      "path.join",
+      "loadDart",
+      "loadTypeScript",
+      "path.format"
+    ],
+    "fanInNullable": [
+      "loadDart",
+      "loadTypeScript"
+    ],
+    "fanOut": [
+      "fs.existsSync"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "load",
+      "yuml.dir",
+      "path.format",
+      "loadTypeScript",
+      "loadDart",
+      "extension.extensionPath",
+      "path.join"
+    ],
+    "executionPlan": [
+      "child-process.spawnSync",
+      "fs.existsSync",
+      "fs.readFileSync",
+      "json.parse",
+      "output"
+    ]
+  }
+]

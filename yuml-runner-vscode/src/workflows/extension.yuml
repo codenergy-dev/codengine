@@ -1,0 +1,8 @@
+// {type:class}
+// {generate:true}
+
+[activate]->[yuml.json]
+
+[yuml.json]->[yuml-parser.download]
+
+[yuml-parser.download]-.->[yuml.watch]

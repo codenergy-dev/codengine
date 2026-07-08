@@ -1,0 +1,79 @@
+[
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "output",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "b"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "b",
+      "c",
+      "output"
+    ]
+  },
+  {
+    "name": "output",
+    "function": "output",
+    "path": null,
+    "workflow": "output",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "output"
+    ]
+  },
+  {
+    "name": "b",
+    "function": "b",
+    "path": null,
+    "workflow": "output",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanOut": [
+      "c"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "b",
+      "c",
+      "output"
+    ]
+  },
+  {
+    "name": "c",
+    "function": "c",
+    "path": null,
+    "workflow": "output",
+    "args": {},
+    "fanIn": [
+      "b"
+    ],
+    "fanOut": [
+      "output"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "a",
+      "b"
+    ],
+    "executionPlan": [
+      "c",
+      "output"
+    ]
+  }
+]

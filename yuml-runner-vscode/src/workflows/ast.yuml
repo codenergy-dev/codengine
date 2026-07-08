@@ -1,0 +1,29 @@
+// {type:class}
+// {direction:leftToRight}
+// {generate:true}
+// {import:src/pipelines/ast.ts}
+
+[child-process.spawnSync|^script=arg2|^path=arg3|^output=arg4]
+
+[path.format|ext=.json|path$=output]^[yuml.dir]
+[path.join|^extensionPath=path|^ast=path1|path$=script]^[extension.extensionPath|path$=extensionPath]
+[path.join]->[child-process.spawnSync]
+
+[load]->[path.format]
+
+[load]->[loadDart|command=dart|arg1=run|ast=ast/dart/main.dart]
+[loadDart]?->[path.join]
+[loadDart]?->[child-process.spawnSync]
+
+[load]->[loadTypeScript|command=node|ast=ast/typescript/main.js]
+[loadTypeScript]?->[path.join]
+[loadTypeScript]?->[child-process.spawnSync]
+
+[child-process.spawnSync]^[path.format]
+[child-process.spawnSync]->[fs.existsSync|^output=path]
+
+[fs.existsSync]^[path.format]
+[fs.existsSync]->[fs.readFileSync|encoding=utf-8]
+[fs.readFileSync]->[json.parse|^data=text]
+
+[json.parse]->[output]

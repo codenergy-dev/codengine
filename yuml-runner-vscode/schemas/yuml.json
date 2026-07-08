@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "yUML Runner",
+  "type": "object",
+  "properties": {
+    "pipelines": {
+      "type": "string",
+      "description": "Folder with pipelines (a.k.a. functions), where is stored the script files used in workflows."
+    },
+    "workflows": {
+      "type": "string",
+      "description": "Folder with workflow (yUML) files."
+    }
+  },
+  "required": ["pipelines", "workflows"]
+}

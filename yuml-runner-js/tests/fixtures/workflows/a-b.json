@@ -1,0 +1,39 @@
+[
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "a-b",
+    "args": {
+      "foo": "bar"
+    },
+    "fanIn": [],
+    "fanOut": [
+      "b"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "b"
+    ]
+  },
+  {
+    "name": "b",
+    "function": "b",
+    "path": null,
+    "workflow": "a-b",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "b"
+    ]
+  }
+]

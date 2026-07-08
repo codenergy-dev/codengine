@@ -1,0 +1,37 @@
+[
+  {
+    "name": "isNotEmpty",
+    "function": "isNotEmpty",
+    "path": null,
+    "workflow": "workspace",
+    "args": {},
+    "fanIn": [],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "isNotEmpty"
+    ]
+  },
+  {
+    "name": "root",
+    "function": "root",
+    "path": null,
+    "workflow": "workspace",
+    "args": {},
+    "fanIn": [
+      "isNotEmpty"
+    ],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": true,
+    "dependencies": [
+      "isNotEmpty"
+    ],
+    "executionPlan": [
+      "isNotEmpty",
+      "root"
+    ]
+  }
+]

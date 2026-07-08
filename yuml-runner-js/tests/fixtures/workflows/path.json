@@ -1,0 +1,226 @@
+[
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "a-b-c-d-e.a"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "a-b-c-d-e.a",
+      "a-b-c-d-e.b",
+      "c"
+    ]
+  },
+  {
+    "name": "d",
+    "function": "d",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "a-b-c-d-e.d"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "d",
+      "a-b-c-d-e.d",
+      "e"
+    ]
+  },
+  {
+    "name": "f",
+    "function": "f",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "output.a"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "f",
+      "output.a",
+      "output.c",
+      "g"
+    ]
+  },
+  {
+    "name": "a-b-c-d-e.a",
+    "function": "a",
+    "path": "a-b-c-d-e",
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanOut": [
+      "a-b-c-d-e.b"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "a-b-c-d-e.a",
+      "a-b-c-d-e.b",
+      "c"
+    ]
+  },
+  {
+    "name": "a-b-c-d-e.b",
+    "function": "b",
+    "path": "a-b-c-d-e",
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "a-b-c-d-e.a"
+    ],
+    "fanOut": [
+      "c"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "a",
+      "a-b-c-d-e.a"
+    ],
+    "executionPlan": [
+      "a-b-c-d-e.b",
+      "c"
+    ]
+  },
+  {
+    "name": "a-b-c-d-e.d",
+    "function": "d",
+    "path": "a-b-c-d-e",
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "d"
+    ],
+    "fanOut": [
+      "e"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "d"
+    ],
+    "executionPlan": [
+      "a-b-c-d-e.d",
+      "e"
+    ]
+  },
+  {
+    "name": "c",
+    "function": "c",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "a-b-c-d-e.b"
+    ],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "a",
+      "a-b-c-d-e.a",
+      "a-b-c-d-e.b"
+    ],
+    "executionPlan": [
+      "c"
+    ]
+  },
+  {
+    "name": "e",
+    "function": "e",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "a-b-c-d-e.d"
+    ],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "d",
+      "a-b-c-d-e.d"
+    ],
+    "executionPlan": [
+      "e"
+    ]
+  },
+  {
+    "name": "output.a",
+    "function": "a",
+    "path": "output",
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "f"
+    ],
+    "fanOut": [
+      "output.c"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "f"
+    ],
+    "executionPlan": [
+      "output.a",
+      "output.c",
+      "g"
+    ]
+  },
+  {
+    "name": "output.c",
+    "function": "c",
+    "path": "output",
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "output.a"
+    ],
+    "fanOut": [
+      "g"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "f",
+      "output.a"
+    ],
+    "executionPlan": [
+      "output.c",
+      "g"
+    ]
+  },
+  {
+    "name": "g",
+    "function": "g",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "output.c"
+    ],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "f",
+      "output.a",
+      "output.c"
+    ],
+    "executionPlan": [
+      "g"
+    ]
+  }
+]

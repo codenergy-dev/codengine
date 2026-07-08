@@ -1,0 +1,26 @@
+// {type:class}
+// {direction:rightToLeft}
+// {generate:true}
+// {import:src/pipelines/yuml.ts}
+
+[json]^[fs.readFileSync|encoding=utf-8]
+
+[fs.readFileSync]^[fs.existsSync]
+
+[fs.existsSync]^[path.join|path1=yuml.json]
+
+[path.join]^[workspace.root]
+
+[watch]^[path.join:workflows]
+
+[format.formatArgs|$workflows=path1]^[json]
+
+[path.join:workflows]^[format.formatArgs]
+
+[path.join:workflows]^[workspace.root]
+
+[dir]^[fs.mkdirSync|path$=dir]
+
+[fs.mkdirSync]^[path.join:dir|path1=.yuml/]
+
+[path.join:dir]^[workspace.root]

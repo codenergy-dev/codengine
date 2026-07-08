@@ -1,0 +1,248 @@
+[
+  {
+    "name": "workspace.root",
+    "function": "root",
+    "path": "workspace",
+    "workflow": "yuml-parser",
+    "args": {},
+    "fanIn": [],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [],
+    "executionPlan": [
+      "workspace.root"
+    ]
+  },
+  {
+    "name": "download",
+    "function": "download",
+    "path": null,
+    "workflow": "yuml-parser",
+    "args": {},
+    "fanIn": [
+      "fs.mkdirSync"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "fetch.get",
+      "fs.writeFileSync"
+    ],
+    "entrypoint": true,
+    "dependencies": [
+      "workspace.root",
+      "path.join",
+      "fs.mkdirSync"
+    ],
+    "executionPlan": [
+      "workspace.root",
+      "path.join",
+      "fs.mkdirSync",
+      "download",
+      "fetch.get",
+      "fetch.responseOk",
+      "fetch.download",
+      "fs.writeFileSync"
+    ]
+  },
+  {
+    "name": "fs.mkdirSync",
+    "function": "mkdirSync",
+    "path": "fs",
+    "workflow": "yuml-parser",
+    "args": {},
+    "fanIn": [
+      "path.join"
+    ],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "workspace.root",
+      "path.join"
+    ],
+    "executionPlan": [
+      "fs.mkdirSync"
+    ]
+  },
+  {
+    "name": "fetch.get",
+    "function": "get",
+    "path": "fetch",
+    "workflow": "yuml-parser",
+    "args": {},
+    "fanIn": [
+      "download"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "fetch.responseOk"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "workspace.root",
+      "path.join",
+      "fs.mkdirSync",
+      "download"
+    ],
+    "executionPlan": [
+      "fetch.get",
+      "fetch.responseOk",
+      "fetch.download",
+      "fs.writeFileSync"
+    ]
+  },
+  {
+    "name": "path.join",
+    "function": "join",
+    "path": "path",
+    "workflow": "yuml-parser",
+    "args": {
+      "path1": ".yuml/"
+    },
+    "fanIn": [
+      "workspace.root"
+    ],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "workspace.root"
+    ],
+    "executionPlan": [
+      "path.join"
+    ]
+  },
+  {
+    "name": "fetch.responseOk",
+    "function": "responseOk",
+    "path": "fetch",
+    "workflow": "yuml-parser",
+    "args": {},
+    "fanIn": [
+      "fetch.get"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "fetch.download"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "workspace.root",
+      "path.join",
+      "fs.mkdirSync",
+      "download",
+      "fetch.get"
+    ],
+    "executionPlan": [
+      "fetch.responseOk",
+      "fetch.download",
+      "fs.writeFileSync"
+    ]
+  },
+  {
+    "name": "fetch.download",
+    "function": "download",
+    "path": "fetch",
+    "workflow": "yuml-parser",
+    "args": {},
+    "fanIn": [
+      "fetch.responseOk"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "fs.writeFileSync"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "workspace.root",
+      "path.join",
+      "fs.mkdirSync",
+      "download",
+      "fetch.get",
+      "fetch.responseOk"
+    ],
+    "executionPlan": [
+      "fetch.download",
+      "fs.writeFileSync"
+    ]
+  },
+  {
+    "name": "format.formatArgs",
+    "function": "formatArgs",
+    "path": "format",
+    "workflow": "yuml-parser",
+    "args": {
+      "$path": "cwd"
+    },
+    "fanIn": [
+      "workspace.root"
+    ],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "workspace.root"
+    ],
+    "executionPlan": [
+      "format.formatArgs"
+    ]
+  },
+  {
+    "name": "fs.writeFileSync",
+    "function": "writeFileSync",
+    "path": "fs",
+    "workflow": "yuml-parser",
+    "args": {
+      "mode": "755"
+    },
+    "fanIn": [
+      "download",
+      "fetch.download"
+    ],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "workspace.root",
+      "path.join",
+      "fs.mkdirSync",
+      "download",
+      "fetch.get",
+      "fetch.responseOk",
+      "fetch.download"
+    ],
+    "executionPlan": [
+      "fs.writeFileSync"
+    ]
+  },
+  {
+    "name": "run",
+    "function": "run",
+    "path": null,
+    "workflow": "yuml-parser",
+    "args": {},
+    "fanIn": [
+      "download",
+      "format.formatArgs"
+    ],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": true,
+    "dependencies": [
+      "workspace.root",
+      "format.formatArgs",
+      "path.join",
+      "fs.mkdirSync",
+      "download"
+    ],
+    "executionPlan": [
+      "workspace.root",
+      "format.formatArgs",
+      "path.join",
+      "fs.mkdirSync",
+      "download",
+      "run"
+    ]
+  }
+]

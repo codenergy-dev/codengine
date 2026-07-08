@@ -1,0 +1,25 @@
+// {type:class}
+// {direction:leftToRight}
+// {generate:true}
+// {import:src/pipelines/yuml-parser.ts}
+
+[download]^[fs.mkdirSync]
+[download]->[fetch.get]
+
+[fs.mkdirSync]^[path.join|path1=.yuml/]
+
+[path.join]^[workspace.root]
+
+[fetch.get]->[fetch.responseOk]
+
+[fetch.responseOk]->[fetch.download]
+
+[fs.writeFileSync|mode="755"]
+[download]->[fs.writeFileSync]
+
+[fetch.download]->[fs.writeFileSync]
+
+[run]^[download]
+[run]^[format.formatArgs|$path=cwd]
+
+[format.formatArgs]^[workspace.root]

@@ -1,0 +1,37 @@
+[
+  {
+    "name": "a-b.b",
+    "function": "b",
+    "path": "a-b",
+    "workflow": "event",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "event"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a-b.b",
+      "event"
+    ]
+  },
+  {
+    "name": "event",
+    "function": "event",
+    "path": null,
+    "workflow": "event",
+    "args": {},
+    "fanIn": [
+      "a-b.b"
+    ],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "a-b.b"
+    ],
+    "executionPlan": [
+      "event"
+    ]
+  }
+]

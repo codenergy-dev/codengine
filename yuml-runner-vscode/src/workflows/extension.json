@@ -1,0 +1,83 @@
+[
+  {
+    "name": "activate",
+    "function": "activate",
+    "path": null,
+    "workflow": "extension",
+    "args": {},
+    "fanIn": [],
+    "fanInNullable": [],
+    "fanOut": [
+      "yuml.json"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "activate",
+      "yuml.json",
+      "yuml-parser.download",
+      "yuml.watch"
+    ]
+  },
+  {
+    "name": "yuml.watch",
+    "function": "watch",
+    "path": "yuml",
+    "workflow": "extension",
+    "args": {},
+    "fanIn": [],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [],
+    "executionPlan": [
+      "yuml.watch"
+    ]
+  },
+  {
+    "name": "yuml.json",
+    "function": "json",
+    "path": "yuml",
+    "workflow": "extension",
+    "args": {},
+    "fanIn": [
+      "activate"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "yuml-parser.download"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "activate"
+    ],
+    "executionPlan": [
+      "yuml.json",
+      "yuml-parser.download",
+      "yuml.watch"
+    ]
+  },
+  {
+    "name": "yuml-parser.download",
+    "function": "download",
+    "path": "yuml-parser",
+    "workflow": "extension",
+    "args": {},
+    "fanIn": [
+      "yuml.json"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "yuml.watch"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "activate",
+      "yuml.json"
+    ],
+    "executionPlan": [
+      "yuml-parser.download",
+      "yuml.watch"
+    ]
+  }
+]

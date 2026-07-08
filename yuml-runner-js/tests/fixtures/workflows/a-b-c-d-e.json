@@ -1,0 +1,95 @@
+[
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "a-b-c-d-e",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "b"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "b"
+    ]
+  },
+  {
+    "name": "c",
+    "function": "c",
+    "path": null,
+    "workflow": "a-b-c-d-e",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "d"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "c",
+      "d",
+      "e"
+    ]
+  },
+  {
+    "name": "b",
+    "function": "b",
+    "path": null,
+    "workflow": "a-b-c-d-e",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "b"
+    ]
+  },
+  {
+    "name": "d",
+    "function": "d",
+    "path": null,
+    "workflow": "a-b-c-d-e",
+    "args": {},
+    "fanIn": [
+      "c"
+    ],
+    "fanOut": [
+      "e"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "c"
+    ],
+    "executionPlan": [
+      "d",
+      "e"
+    ]
+  },
+  {
+    "name": "e",
+    "function": "e",
+    "path": null,
+    "workflow": "a-b-c-d-e",
+    "args": {},
+    "fanIn": [
+      "d"
+    ],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "c",
+      "d"
+    ],
+    "executionPlan": [
+      "e"
+    ]
+  }
+]

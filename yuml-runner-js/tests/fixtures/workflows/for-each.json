@@ -1,0 +1,62 @@
+[
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "for-each",
+    "args": {
+      "count": 10
+    },
+    "fanIn": [],
+    "fanOut": [
+      "forEach"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "forEach",
+      "b"
+    ]
+  },
+  {
+    "name": "forEach",
+    "function": "forEach",
+    "path": null,
+    "workflow": "for-each",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanOut": [
+      "b"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "forEach",
+      "b"
+    ]
+  },
+  {
+    "name": "b",
+    "function": "b",
+    "path": null,
+    "workflow": "for-each",
+    "args": {},
+    "fanIn": [
+      "forEach"
+    ],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "a",
+      "forEach"
+    ],
+    "executionPlan": [
+      "b"
+    ]
+  }
+]

@@ -1,0 +1,49 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: yuml-parser-linux
+            exe_name: yuml_parser
+          - os: windows-latest
+            artifact_name: yuml-parser-windows.exe
+            exe_name: yuml_parser.exe
+          - os: macos-latest
+            artifact_name: yuml-parser-macos
+            exe_name: yuml_parser
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - run: pip install pyinstaller
+
+      - run: pyinstaller --onefile --name yuml_parser main.py
+
+      - run: mv dist/${{ matrix.exe_name }} dist/${{ matrix.artifact_name }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/${{ matrix.artifact_name }}
+      
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: dist/${{ matrix.artifact_name }}
+          allowUpdates: true

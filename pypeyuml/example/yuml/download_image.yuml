@@ -1,0 +1,12 @@
+// {type:class}
+// {direction:leftToRight}
+// {generate:true}
+
+[urlopen_pipeline|url=https://picsum.photos/256]
+[status_ok_pipeline]
+[status_error_pipeline]
+[download_image_pipeline|path=output/image.png]
+
+[urlopen_pipeline]->[status_ok_pipeline]
+[urlopen_pipeline]->[status_error_pipeline]
+[status_ok_pipeline]->[download_image_pipeline]

@@ -1,0 +1,60 @@
+[
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "asynchronous",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "asynchronous"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "asynchronous",
+      "b"
+    ]
+  },
+  {
+    "name": "asynchronous",
+    "function": "asynchronous",
+    "path": null,
+    "workflow": "asynchronous",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanOut": [
+      "b"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "asynchronous",
+      "b"
+    ]
+  },
+  {
+    "name": "b",
+    "function": "b",
+    "path": null,
+    "workflow": "asynchronous",
+    "args": {},
+    "fanIn": [
+      "asynchronous"
+    ],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "a",
+      "asynchronous"
+    ],
+    "executionPlan": [
+      "b"
+    ]
+  }
+]

@@ -1,0 +1,468 @@
+[
+  {
+    "name": "A",
+    "function": "A",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "A"
+    ]
+  },
+  {
+    "name": "E",
+    "function": "E",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "E"
+    ]
+  },
+  {
+    "name": "H",
+    "function": "H",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "H"
+    ]
+  },
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "A"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "b",
+      "b2"
+    ],
+    "entrypoint": true,
+    "dependencies": [
+      "A"
+    ],
+    "executionPlan": [
+      "A",
+      "a",
+      "b",
+      "c",
+      "d",
+      "f",
+      "g",
+      "H",
+      "h3",
+      "b2",
+      "c2",
+      "d2",
+      "E",
+      "e2",
+      "f2",
+      "h",
+      "h2"
+    ]
+  },
+  {
+    "name": "b",
+    "function": "b",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "c"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "A",
+      "a"
+    ],
+    "executionPlan": [
+      "b",
+      "c",
+      "d",
+      "f",
+      "g",
+      "H",
+      "h3"
+    ]
+  },
+  {
+    "name": "c",
+    "function": "c",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "b"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "d",
+      "h3"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "A",
+      "a",
+      "b"
+    ],
+    "executionPlan": [
+      "c",
+      "d",
+      "f",
+      "g",
+      "H",
+      "h3"
+    ]
+  },
+  {
+    "name": "d",
+    "function": "d",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "c"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "f"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "A",
+      "a",
+      "b",
+      "c"
+    ],
+    "executionPlan": [
+      "d",
+      "f",
+      "g"
+    ]
+  },
+  {
+    "name": "f",
+    "function": "f",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "d"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "g"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "A",
+      "a",
+      "b",
+      "c",
+      "d"
+    ],
+    "executionPlan": [
+      "f",
+      "g"
+    ]
+  },
+  {
+    "name": "g",
+    "function": "g",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "f"
+    ],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "A",
+      "a",
+      "b",
+      "c",
+      "d",
+      "f"
+    ],
+    "executionPlan": [
+      "g"
+    ]
+  },
+  {
+    "name": "b2",
+    "function": "b2",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "c2"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "A",
+      "a"
+    ],
+    "executionPlan": [
+      "b2",
+      "c2",
+      "d2",
+      "E",
+      "e2",
+      "f2",
+      "h",
+      "h2",
+      "H",
+      "b",
+      "c",
+      "h3"
+    ]
+  },
+  {
+    "name": "c2",
+    "function": "c2",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "b2"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "d2"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "A",
+      "a",
+      "b2"
+    ],
+    "executionPlan": [
+      "c2",
+      "d2",
+      "E",
+      "e2",
+      "f2",
+      "h",
+      "h2",
+      "H",
+      "b",
+      "c",
+      "h3"
+    ]
+  },
+  {
+    "name": "d2",
+    "function": "d2",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "c2"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "e2"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "A",
+      "a",
+      "b2",
+      "c2"
+    ],
+    "executionPlan": [
+      "d2",
+      "E",
+      "e2",
+      "f2",
+      "h",
+      "h2",
+      "H",
+      "b",
+      "c",
+      "h3"
+    ]
+  },
+  {
+    "name": "f2",
+    "function": "f2",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "e2"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "h",
+      "h2"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "E",
+      "A",
+      "a",
+      "b2",
+      "c2",
+      "d2",
+      "e2"
+    ],
+    "executionPlan": [
+      "f2",
+      "h",
+      "h2",
+      "H",
+      "b",
+      "c",
+      "h3"
+    ]
+  },
+  {
+    "name": "h",
+    "function": "h",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "f2"
+    ],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "E",
+      "A",
+      "a",
+      "b2",
+      "c2",
+      "d2",
+      "e2",
+      "f2"
+    ],
+    "executionPlan": [
+      "h"
+    ]
+  },
+  {
+    "name": "h2",
+    "function": "h2",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "f2"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "a",
+      "h3"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "E",
+      "A",
+      "a",
+      "b2",
+      "c2",
+      "d2",
+      "e2",
+      "f2"
+    ],
+    "executionPlan": [
+      "h2",
+      "H",
+      "b",
+      "c",
+      "h3"
+    ]
+  },
+  {
+    "name": "h3",
+    "function": "h3",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "c",
+      "H"
+    ],
+    "fanInNullable": [],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "H",
+      "A",
+      "a",
+      "b",
+      "c"
+    ],
+    "executionPlan": [
+      "h3"
+    ]
+  },
+  {
+    "name": "e2",
+    "function": "e2",
+    "path": null,
+    "workflow": "example",
+    "args": {},
+    "fanIn": [
+      "d2",
+      "E"
+    ],
+    "fanInNullable": [],
+    "fanOut": [
+      "f2"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "E",
+      "A",
+      "a",
+      "b2",
+      "c2",
+      "d2"
+    ],
+    "executionPlan": [
+      "e2",
+      "f2",
+      "h",
+      "h2",
+      "H",
+      "b",
+      "c",
+      "h3"
+    ]
+  }
+]

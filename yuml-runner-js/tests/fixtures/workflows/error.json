@@ -1,0 +1,60 @@
+[
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "error",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "b"
+    ],
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "b",
+      "error"
+    ]
+  },
+  {
+    "name": "b",
+    "function": "b",
+    "path": null,
+    "workflow": "error",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanOut": [
+      "error"
+    ],
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "b",
+      "error"
+    ]
+  },
+  {
+    "name": "error",
+    "function": "error",
+    "path": null,
+    "workflow": "error",
+    "args": {},
+    "fanIn": [
+      "b"
+    ],
+    "fanOut": [],
+    "entrypoint": false,
+    "dependencies": [
+      "a",
+      "b"
+    ],
+    "executionPlan": [
+      "error"
+    ]
+  }
+]

@@ -1,0 +1,4 @@
+{
+  "pipelines": "src/pipelines",
+  "workflows": "src/workflows"
+}

@@ -1,0 +1,49 @@
+{
+  "name": "pypeyuml-vscode",
+  "displayName": "Pypeyuml",
+  "description": "Provides autocomplete for yUML diagrams using pipeline functions defined in Python files.",
+  "version": "0.0.1",
+  "publisher": "lucaslannes",
+  "engines": {
+    "vscode": "^1.99.1"
+  },
+  "activationEvents": [
+    "onLanguage:yuml"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "pypeyuml-vscode.reloadPipelines",
+        "title": "Pypeyuml: Reload pipelines"
+      }
+    ],
+    "languages": [
+      {
+        "id": "yuml",
+        "aliases": [
+          "yUML",
+          "yuml"
+        ],
+        "extensions": [
+          ".yuml"
+        ]
+      }
+    ],
+    "properties": {
+      "pypeyuml-vscode.pipelines": {
+        "type": "array",
+        "default": [],
+        "description": "List of folders containing pipeline definitions."
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.99.1",
+    "typescript": "^5.0.0"
+  }
+}

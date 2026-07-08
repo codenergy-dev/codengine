@@ -1,0 +1,5 @@
+// {type:class}
+// {generate:true}
+// {import:src/pipelines/workspace.ts}
+
+[root]^[isNotEmpty]
