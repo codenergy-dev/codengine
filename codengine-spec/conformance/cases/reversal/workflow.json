@@ -1,0 +1,64 @@
+{
+  "version": "1",
+  "workflow": "reversal",
+  "tasks": [
+    {
+      "name": "echo:origin",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": [
+        "echo:origin"
+      ]
+    },
+    {
+      "name": "echo:seed",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "echo:origin"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [
+        "echo:origin"
+      ],
+      "executionPlan": [
+        "echo:origin",
+        "echo:seed",
+        "output"
+      ]
+    },
+    {
+      "name": "output",
+      "function": "output",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "echo:seed"
+      ],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "echo:origin",
+        "echo:seed"
+      ],
+      "executionPlan": [
+        "output"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "entry": "emit",
+  "input": {
+    "n": 2
+  },
+  "expectedOutput": [
+    {
+      "i": 0
+    },
+    {
+      "i": 1
+    }
+  ]
+}

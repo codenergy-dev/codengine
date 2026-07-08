@@ -1,0 +1,2 @@
+[echo:src]->[echo:t|^a=b|b$=c]
+[echo:t]->[output]

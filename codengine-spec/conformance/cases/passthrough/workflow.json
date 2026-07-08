@@ -1,0 +1,43 @@
+{
+  "version": "1",
+  "workflow": "passthrough",
+  "tasks": [
+    {
+      "name": "pass",
+      "function": "pass",
+      "module": null,
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": [
+        "pass",
+        "output"
+      ]
+    },
+    {
+      "name": "output",
+      "function": "output",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "pass"
+      ],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "pass"
+      ],
+      "executionPlan": [
+        "output"
+      ]
+    }
+  ]
+}

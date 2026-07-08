@@ -1,0 +1,70 @@
+{
+  "version": "1",
+  "workflow": "io-rename",
+  "tasks": [
+    {
+      "name": "echo:src",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": [
+        "echo:t"
+      ],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": [
+        "echo:src",
+        "echo:t",
+        "output"
+      ]
+    },
+    {
+      "name": "echo:t",
+      "function": "echo",
+      "module": null,
+      "args": {
+        "^a": "b",
+        "b$": "c"
+      },
+      "fanIn": [
+        "echo:src"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "echo:src"
+      ],
+      "executionPlan": [
+        "echo:t",
+        "output"
+      ]
+    },
+    {
+      "name": "output",
+      "function": "output",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "echo:t"
+      ],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "echo:src",
+        "echo:t"
+      ],
+      "executionPlan": [
+        "output"
+      ]
+    }
+  ]
+}

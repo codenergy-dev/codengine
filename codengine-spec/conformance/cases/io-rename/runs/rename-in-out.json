@@ -1,0 +1,11 @@
+{
+  "entry": "echo:src",
+  "input": {
+    "a": 1
+  },
+  "expectedOutput": [
+    {
+      "c": 1
+    }
+  ]
+}

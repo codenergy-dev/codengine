@@ -1,0 +1,11 @@
+{
+  "entry": "echo",
+  "input": {
+    "msg": "hi"
+  },
+  "expectedOutput": [
+    {
+      "msg": "hi"
+    }
+  ]
+}

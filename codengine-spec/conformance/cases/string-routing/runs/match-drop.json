@@ -1,0 +1,8 @@
+{
+  "entry": "route",
+  "input": {
+    "route": "drop",
+    "n": 2
+  },
+  "expectedOutput": null
+}

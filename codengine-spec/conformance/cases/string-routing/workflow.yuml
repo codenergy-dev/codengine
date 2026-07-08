@@ -1,0 +1,4 @@
+[route]keep->[echo]
+[route]drop->[nil]
+[echo]->[output]
+[nil]->[output]

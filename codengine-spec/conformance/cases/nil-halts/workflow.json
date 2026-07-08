@@ -1,0 +1,67 @@
+{
+  "version": "1",
+  "workflow": "nil-halts",
+  "tasks": [
+    {
+      "name": "nil",
+      "function": "nil",
+      "module": null,
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": [
+        "echo"
+      ],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": [
+        "nil",
+        "echo",
+        "output"
+      ]
+    },
+    {
+      "name": "echo",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "nil"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "nil"
+      ],
+      "executionPlan": [
+        "echo",
+        "output"
+      ]
+    },
+    {
+      "name": "output",
+      "function": "output",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "echo"
+      ],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "nil",
+        "echo"
+      ],
+      "executionPlan": [
+        "output"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codenergy.dev/codengine/schema/workflow.schema.json",
+  "title": "codengine workflow IR",
+  "description": "The Intermediate Representation of a codengine workflow: the parsed task graph a parser emits and a runner executes. Version 1.",
+  "type": "object",
+  "required": ["version", "workflow", "tasks"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "description": "IR spec version this document conforms to.",
+      "const": "1"
+    },
+    "workflow": {
+      "description": "Workflow name (usually the diagram file name without extension).",
+      "type": "string",
+      "minLength": 1
+    },
+    "tasks": {
+      "description": "The tasks (nodes) of the workflow.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/task" }
+    }
+  },
+  "$defs": {
+    "task": {
+      "type": "object",
+      "required": [
+        "name",
+        "function",
+        "module",
+        "args",
+        "fanIn",
+        "fanInNullable",
+        "fanOut",
+        "routes",
+        "entrypoint",
+        "dependencies",
+        "executionPlan"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "Unique task id within the workflow.",
+          "type": "string",
+          "minLength": 1
+        },
+        "function": {
+          "description": "Name of the function to resolve and call for this task.",
+          "type": "string",
+          "minLength": 1
+        },
+        "module": {
+          "description": "Namespace the function is resolved from; also the cross-workflow / cross-language routing hook. null means this workflow.",
+          "type": ["string", "null"]
+        },
+        "args": {
+          "description": "Literal arguments declared on the node in the diagram, merged into the task input at run time.",
+          "type": "object"
+        },
+        "fanIn": {
+          "description": "Upstream tasks whose output this task consumes.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "fanInNullable": {
+          "description": "Subset of fanIn allowed to be absent without blocking this task.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "fanOut": {
+          "description": "Downstream tasks, ORDERED. The order is the index space used by index routing.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "routes": {
+          "description": "Labeled outgoing edges, used by string routing. Empty when no outgoing edge carries a label.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/route" }
+        },
+        "entrypoint": {
+          "description": "Whether this task may start an execution.",
+          "type": "boolean"
+        },
+        "dependencies": {
+          "description": "Transitive upstream tasks, precomputed by the planner. Runners trust this.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "executionPlan": {
+          "description": "The ordered set of tasks to run starting from this task, precomputed by the planner. Runners trust this.",
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "route": {
+      "type": "object",
+      "required": ["label", "target"],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "description": "The edge label a string router matches against.",
+          "type": "string"
+        },
+        "target": {
+          "description": "The task selected when the router output equals label.",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

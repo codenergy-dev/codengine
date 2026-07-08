@@ -1,0 +1,125 @@
+{
+  "version": "1",
+  "workflow": "index-routing",
+  "tasks": [
+    {
+      "name": "pick",
+      "function": "pick",
+      "module": null,
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": [
+        "echo:a",
+        "echo:b",
+        "echo:c"
+      ],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": [
+        "pick",
+        "echo:a",
+        "echo:c",
+        "echo:b",
+        "output"
+      ]
+    },
+    {
+      "name": "echo:a",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "pick"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "pick"
+      ],
+      "executionPlan": [
+        "echo:a",
+        "echo:c",
+        "echo:b",
+        "output"
+      ]
+    },
+    {
+      "name": "echo:b",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "pick"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "pick"
+      ],
+      "executionPlan": [
+        "echo:b",
+        "echo:c",
+        "echo:a",
+        "output"
+      ]
+    },
+    {
+      "name": "echo:c",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "pick"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "pick"
+      ],
+      "executionPlan": [
+        "echo:c",
+        "echo:b",
+        "echo:a",
+        "output"
+      ]
+    },
+    {
+      "name": "output",
+      "function": "output",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "echo:a",
+        "echo:b",
+        "echo:c"
+      ],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "pick",
+        "echo:c",
+        "echo:b",
+        "echo:a"
+      ],
+      "executionPlan": [
+        "output"
+      ]
+    }
+  ]
+}

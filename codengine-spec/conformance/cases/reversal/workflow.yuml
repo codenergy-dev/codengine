@@ -1,0 +1,2 @@
+[echo:seed]^[echo:origin]
+[echo:seed]->[output]

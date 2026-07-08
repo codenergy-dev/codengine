@@ -1,0 +1,129 @@
+{
+  "version": "1",
+  "workflow": "cartesian-fanin",
+  "tasks": [
+    {
+      "name": "echo:start",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": [
+        "emit:p",
+        "emit:q"
+      ],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": [
+        "echo:start",
+        "emit:p",
+        "emit:q",
+        "echo:merge",
+        "output"
+      ]
+    },
+    {
+      "name": "emit:p",
+      "function": "emit",
+      "module": null,
+      "args": {
+        "n": 2,
+        "i$": "p"
+      },
+      "fanIn": [
+        "echo:start"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "echo:merge"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "echo:start"
+      ],
+      "executionPlan": [
+        "emit:p",
+        "emit:q",
+        "echo:merge",
+        "output"
+      ]
+    },
+    {
+      "name": "emit:q",
+      "function": "emit",
+      "module": null,
+      "args": {
+        "n": 3,
+        "i$": "q"
+      },
+      "fanIn": [
+        "echo:start"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "echo:merge"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "echo:start"
+      ],
+      "executionPlan": [
+        "emit:q",
+        "emit:p",
+        "echo:merge",
+        "output"
+      ]
+    },
+    {
+      "name": "output",
+      "function": "output",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "echo:merge"
+      ],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "echo:start",
+        "emit:q",
+        "emit:p",
+        "echo:merge"
+      ],
+      "executionPlan": [
+        "output"
+      ]
+    },
+    {
+      "name": "echo:merge",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "emit:p",
+        "emit:q"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "echo:start",
+        "emit:q",
+        "emit:p"
+      ],
+      "executionPlan": [
+        "echo:merge",
+        "output"
+      ]
+    }
+  ]
+}

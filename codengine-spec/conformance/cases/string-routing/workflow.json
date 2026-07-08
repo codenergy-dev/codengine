@@ -1,0 +1,104 @@
+{
+  "version": "1",
+  "workflow": "string-routing",
+  "tasks": [
+    {
+      "name": "route",
+      "function": "route",
+      "module": null,
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": [
+        "echo",
+        "nil"
+      ],
+      "routes": [
+        {
+          "label": "keep",
+          "target": "echo"
+        },
+        {
+          "label": "drop",
+          "target": "nil"
+        }
+      ],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": [
+        "route",
+        "echo",
+        "nil",
+        "output"
+      ]
+    },
+    {
+      "name": "echo",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "route"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "route"
+      ],
+      "executionPlan": [
+        "echo",
+        "nil",
+        "output"
+      ]
+    },
+    {
+      "name": "nil",
+      "function": "nil",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "route"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "route"
+      ],
+      "executionPlan": [
+        "nil",
+        "echo",
+        "output"
+      ]
+    },
+    {
+      "name": "output",
+      "function": "output",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "echo",
+        "nil"
+      ],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "route",
+        "nil",
+        "echo"
+      ],
+      "executionPlan": [
+        "output"
+      ]
+    }
+  ]
+}

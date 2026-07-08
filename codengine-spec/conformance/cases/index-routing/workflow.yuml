@@ -1,0 +1,6 @@
+[pick]->[echo:a]
+[pick]->[echo:b]
+[pick]->[echo:c]
+[echo:a]->[output]
+[echo:b]->[output]
+[echo:c]->[output]

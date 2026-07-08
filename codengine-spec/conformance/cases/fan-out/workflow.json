@@ -1,0 +1,67 @@
+{
+  "version": "1",
+  "workflow": "fan-out",
+  "tasks": [
+    {
+      "name": "emit",
+      "function": "emit",
+      "module": null,
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": [
+        "echo"
+      ],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": [
+        "emit",
+        "echo",
+        "output"
+      ]
+    },
+    {
+      "name": "echo",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "emit"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "emit"
+      ],
+      "executionPlan": [
+        "echo",
+        "output"
+      ]
+    },
+    {
+      "name": "output",
+      "function": "output",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "echo"
+      ],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "emit",
+        "echo"
+      ],
+      "executionPlan": [
+        "output"
+      ]
+    }
+  ]
+}

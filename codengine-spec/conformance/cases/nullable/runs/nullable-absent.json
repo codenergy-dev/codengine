@@ -1,0 +1,11 @@
+{
+  "entry": "echo:start",
+  "input": {
+    "v": 1
+  },
+  "expectedOutput": [
+    {
+      "v": 1
+    }
+  ]
+}

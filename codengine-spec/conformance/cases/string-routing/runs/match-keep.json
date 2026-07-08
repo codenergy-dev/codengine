@@ -1,0 +1,13 @@
+{
+  "entry": "route",
+  "input": {
+    "route": "keep",
+    "n": 1
+  },
+  "expectedOutput": [
+    {
+      "route": "keep",
+      "n": 1
+    }
+  ]
+}

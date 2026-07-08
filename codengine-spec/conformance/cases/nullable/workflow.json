@@ -1,0 +1,125 @@
+{
+  "version": "1",
+  "workflow": "nullable",
+  "tasks": [
+    {
+      "name": "echo:start",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": [
+        "nil:maybe",
+        "echo:req"
+      ],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": [
+        "echo:start",
+        "nil:maybe",
+        "echo:req",
+        "echo:merge",
+        "output"
+      ]
+    },
+    {
+      "name": "nil:maybe",
+      "function": "nil",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "echo:start"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "echo:merge"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "echo:start"
+      ],
+      "executionPlan": [
+        "nil:maybe",
+        "echo:req",
+        "echo:merge",
+        "output"
+      ]
+    },
+    {
+      "name": "echo:req",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "echo:start"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "echo:merge"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "echo:start"
+      ],
+      "executionPlan": [
+        "echo:req",
+        "nil:maybe",
+        "echo:merge",
+        "output"
+      ]
+    },
+    {
+      "name": "output",
+      "function": "output",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "echo:merge"
+      ],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "echo:start",
+        "echo:req",
+        "nil:maybe",
+        "echo:merge"
+      ],
+      "executionPlan": [
+        "output"
+      ]
+    },
+    {
+      "name": "echo:merge",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "nil:maybe",
+        "echo:req"
+      ],
+      "fanInNullable": [
+        "nil:maybe"
+      ],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "echo:start",
+        "echo:req",
+        "nil:maybe"
+      ],
+      "executionPlan": [
+        "echo:merge",
+        "output"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "entry": "echo:seed",
+  "input": {
+    "v": 5
+  },
+  "expectedOutput": [
+    {
+      "v": 5
+    }
+  ]
+}

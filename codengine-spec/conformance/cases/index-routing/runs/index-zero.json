@@ -1,0 +1,11 @@
+{
+  "entry": "pick",
+  "input": {
+    "i": 0
+  },
+  "expectedOutput": [
+    {
+      "i": 0
+    }
+  ]
+}

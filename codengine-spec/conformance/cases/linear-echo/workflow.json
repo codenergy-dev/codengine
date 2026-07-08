@@ -1,0 +1,43 @@
+{
+  "version": "1",
+  "workflow": "linear-echo",
+  "tasks": [
+    {
+      "name": "echo",
+      "function": "echo",
+      "module": null,
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": [
+        "echo",
+        "output"
+      ]
+    },
+    {
+      "name": "output",
+      "function": "output",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "echo"
+      ],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "echo"
+      ],
+      "executionPlan": [
+        "output"
+      ]
+    }
+  ]
+}

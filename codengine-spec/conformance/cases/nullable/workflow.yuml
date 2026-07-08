@@ -1,0 +1,5 @@
+[echo:start]->[nil:maybe]
+[echo:start]->[echo:req]
+[nil:maybe]?->[echo:merge]
+[echo:req]->[echo:merge]
+[echo:merge]->[output]

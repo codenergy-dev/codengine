@@ -1,0 +1,13 @@
+{
+  "entry": "pass",
+  "input": {
+    "a": 1,
+    "b": 2
+  },
+  "expectedOutput": [
+    {
+      "a": 1,
+      "b": 2
+    }
+  ]
+}

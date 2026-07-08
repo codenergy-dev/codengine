@@ -1,0 +1,5 @@
+[echo:start]->[emit:p|n=2|i$=p]
+[echo:start]->[emit:q|n=3|i$=q]
+[emit:p]->[echo:merge]
+[emit:q]->[echo:merge]
+[echo:merge]->[output]
