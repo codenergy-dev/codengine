@@ -17,6 +17,15 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
 
+  codengine-runner-ts:
+    devDependencies:
+      '@types/node':
+        specifier: 22.20.1
+        version: 22.20.1
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+
 packages:
 
   '@types/node@22.20.1':
