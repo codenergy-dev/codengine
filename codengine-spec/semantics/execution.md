@@ -38,6 +38,35 @@ literal `args`:
   `fanIn` but not in `fanInNullable` that produced nothing prevents the task from
   running.
 
+## Function invocation
+
+The input is delivered to a task's function as **named arguments**, so functions
+are written naturally in each language instead of always receiving one generic
+untyped map. The runner binds the merged input (after the `args` merge and the
+`^key` / `key$` renames below) to the function's declared parameters:
+
+- each declared parameter is filled from the input entry of the same name;
+- input entries with no matching parameter are **ignored**, unless the function
+  declares a language-native catch-all (e.g. Python `**kwargs`), which receives them;
+- a **required** parameter (no default, non-nullable) with no matching input entry
+  is a **missing-input error**, reported uniformly as
+  `Task '<name>': missing required input(s): <names>`;
+- an optional parameter with no matching input uses its default.
+
+A runner realizes this with native language features only — never a calling
+convention invented for codengine. Two families are allowed:
+
+- **Named binding** — the runner passes each input entry as a named argument.
+  Python inspects the signature (or spreads into `**kwargs`); Dart uses adapters
+  generated at build time (no runtime mirrors in AOT); C# uses reflection. Extras
+  are dropped; missing required inputs raise the error above.
+- **Structured binding** — languages that cannot introspect parameter names pass
+  the whole input as one structured value the function reads (JavaScript /
+  TypeScript: an object destructured in the signature). Extras are naturally
+  ignored; a missing input is simply absent.
+
+Both realize the same intent; a runner uses whichever its language supports.
+
 ## Task output
 
 A task's behavior downstream is decided by the **type** of what its function

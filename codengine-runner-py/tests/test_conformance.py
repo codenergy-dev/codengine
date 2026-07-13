@@ -14,14 +14,16 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 CASES = os.path.join(REPO, "codengine-spec", "conformance", "cases")
 
+# Natural signatures per the invocation contract: named binding drops extras,
+# `**data` receives everything.
 CATALOG = {
-    "echo": lambda data: data,
-    "pass": lambda data: True,
-    "nil": lambda data: None,
-    "emit": lambda data: [{"i": i} for i in range(data["n"])],
-    "route": lambda data: data["route"],
-    "pick": lambda data: data["i"],
-    "output": lambda data: data,
+    "echo": lambda **data: data,
+    "pass": lambda **data: True,
+    "nil": lambda **data: None,
+    "emit": lambda n: [{"i": i} for i in range(n)],
+    "route": lambda route: route,
+    "pick": lambda i: i,
+    "output": lambda **data: data,
 }
 
 

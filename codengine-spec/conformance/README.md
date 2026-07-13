@@ -32,14 +32,19 @@ specified here (not shipped as code — each runner implements this catalog once
 idiomatically, then runs every fixture). Keeping the functions abstract is what
 lets the `runs/` fixtures stay language neutral.
 
+Functions are defined by **behavior**, not signature — each runner implements them
+idiomatically per the [invocation contract](../semantics/execution.md#function-invocation)
+(named binding where the language allows, structured otherwise), so the `input`
+below means "the named input" however it is delivered.
+
 | Function | Behavior |
 |---|---|
 | `echo` | Returns its input unchanged (a single object). Identity. |
 | `pass` | Returns `true` (passthrough — output equals input). |
 | `nil` | Returns `null` (halts the branch). |
-| `emit` | Returns an array of `input.n` objects, the i-th being `{ "i": i }` (fan-out). |
-| `route` | Returns the string `input.route` (drives a string router). |
-| `pick` | Returns the integer `input.i` (drives an index router). |
+| `emit` | Returns an array of `n` objects, the i-th being `{ "i": i }` (fan-out). |
+| `route` | Returns the string input `route` (drives a string router). |
+| `pick` | Returns the integer input `i` (drives an index router). |
 | `output` | Terminal collector: returns its input; the run's result is this task's output. |
 
 ## Bootstrapping order

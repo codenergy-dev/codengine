@@ -16,14 +16,20 @@ from codengine_runner import run
 ir = ...  # a parsed workflow.json (dict)
 
 functions = {
-    "fetch_user": lambda data: {"user": find_user(data["id"])},
-    "greet": lambda data: {"message": f"Hello, {data['user']['name']}"},
-    "output": lambda data: data,  # terminal collector
+    "fetch_user": lambda id: {"user": find_user(id)},
+    "greet": lambda user: {"message": f"Hello, {user['name']}"},
+    "output": lambda **data: data,  # terminal collector
 }
 
 result = run(ir, functions, "fetch_user", {"id": 42})
 # result: the `output` task's collected output (list[dict]), or None.
 ```
+
+Inputs are bound as **named arguments** (the
+[invocation contract](../codengine-spec/semantics/execution.md#function-invocation)):
+write the parameters you need — `def resize(width, height)` — and unrelated keys
+are dropped. Use `**kwargs` to receive everything; a missing required parameter
+raises `MissingInputError`.
 
 ## Semantics
 

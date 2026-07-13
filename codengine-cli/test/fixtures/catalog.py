@@ -1,25 +1,26 @@
 # Python task functions for the CLI end-to-end tests.
+# Natural signatures per the invocation contract (named binding).
 
 
-def echo(data):
+def echo(**data):
     return data
 
 
-def output(data):
+def output(**data):
     return data
 
 
-def pick(data):
-    return data["i"]
+def pick(i):
+    return i
 
 
-def route(data):
-    return data["route"]
+def route(route):
+    return route
 
 
-def nil(data):
+def nil(**data):
     return None
 
 
-def emit(data):
-    return [{"i": i} for i in range(data["n"])]
+def emit(n):
+    return [{"i": i} for i in range(n)]

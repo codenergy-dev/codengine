@@ -1,7 +1,8 @@
 # The same greeting tasks in Python, for `--language py`.
-def greet(data):
-    return {"message": f"Hello, {data['name']}!"}
+# `greet` receives `name` as a named argument — no generic dict.
+def greet(name):
+    return {"message": f"Hello, {name}!"}
 
 
-def output(data):
+def output(**data):
     return data

@@ -17,14 +17,19 @@ import type { FunctionMap, WorkflowIR } from "codengine-runner-ts";
 const ir: WorkflowIR = /* parse a .yuml, or load a workflow.json */;
 
 const functions: FunctionMap = {
-  fetchUser: (input) => ({ user: findUser(input.id) }),
-  greet: (input) => ({ message: `Hello, ${input.user.name}` }),
+  fetchUser: ({ id }) => ({ user: findUser(id) }),
+  greet: ({ user }) => ({ message: `Hello, ${user.name}` }),
   output: (input) => input, // terminal collector
 };
 
 const result = run(ir, functions, "fetchUser", { id: 42 });
 // result: the `output` task's collected output (an array of objects), or null.
 ```
+
+Inputs use **structured binding** (the
+[invocation contract](../codengine-spec/semantics/execution.md#function-invocation)):
+the function receives the whole input object and destructures the named keys it
+needs — `({ width, height }) => …`. Unrelated keys are ignored.
 
 ## Semantics (summary)
 
