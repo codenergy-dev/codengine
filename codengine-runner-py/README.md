@@ -36,6 +36,20 @@ diverge and why the shared conformance suite matters:
   index routing;
 - the Euclidean modulo `((n % L) + L) % L` selects the same branch as in JS.
 
+## Subprocess mode (for the orchestrator)
+
+The runner also runs as a process speaking a JSON protocol over stdio, which is
+how [`codengine-cli`](../codengine-cli/) executes Python workflows:
+
+```sh
+echo '{"ir": {...}, "entry": "task", "input": {...}, "functions": "/path/to/funcs.py"}' \
+  | python -m codengine_runner
+# -> {"result": [ ... ]}   or   {"error": "..."}
+```
+
+The functions module is loaded by its top-level functions, or an explicit
+`FUNCTIONS` dict.
+
 ## Development
 
 ```sh
