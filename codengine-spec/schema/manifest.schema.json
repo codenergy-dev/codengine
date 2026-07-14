@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codenergy.dev/codengine/schema/manifest.schema.json",
+  "title": "codengine project manifest",
+  "description": "Declares where a project's workflows and task functions live, and in which language. Consumed by the CLI and the language server to resolve a task's module to concrete source + a runner/analyzer. Version 1.",
+  "type": "object",
+  "required": ["version", "modules"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "description": "Manifest spec version.",
+      "const": "1"
+    },
+    "workflows": {
+      "description": "Paths (dirs or globs, relative to the manifest) where the .yuml diagrams live.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "modules": {
+      "description": "Namespace -> module config. The empty key \"\" is the default module (tasks with module: null).",
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/module" }
+    }
+  },
+  "$defs": {
+    "module": {
+      "type": "object",
+      "required": ["language", "functions"],
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "description": "Language of this module's functions.",
+          "type": "string",
+          "enum": ["ts", "py"]
+        },
+        "functions": {
+          "description": "Local path to the functions source (file or directory), resolved against the manifest dir or absolute; may point outside the project.",
+          "type": "string",
+          "minLength": 1
+        },
+        "python": {
+          "description": "Python interpreter for language \"py\" (must have codengine-runner / codengine-analyzer available).",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

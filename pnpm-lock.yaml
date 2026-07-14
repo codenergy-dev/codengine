@@ -20,12 +20,24 @@ importers:
 
   codengine-cli:
     dependencies:
+      codengine-manifest:
+        specifier: workspace:*
+        version: link:../codengine-manifest
       codengine-parser:
         specifier: workspace:*
         version: link:../codengine-parser
       codengine-runner-ts:
         specifier: workspace:*
         version: link:../codengine-runner-ts
+    devDependencies:
+      '@types/node':
+        specifier: 22.20.1
+        version: 22.20.1
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+
+  codengine-manifest:
     devDependencies:
       '@types/node':
         specifier: 22.20.1

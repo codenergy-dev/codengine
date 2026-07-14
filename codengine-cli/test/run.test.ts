@@ -46,3 +46,24 @@ for (const [name, spec] of Object.entries(workflows)) {
     assert.deepStrictEqual(result, spec.expected);
   });
 }
+
+const manifestProject = resolve(repo, "codengine-cli", "test", "fixtures", "manifest-project");
+
+test("runs from an explicit manifest (default module)", async () => {
+  const result = await runWorkflow({
+    workflow: resolve(manifestProject, "greeting.yuml"),
+    manifest: resolve(manifestProject, "codengine.json"),
+    entry: "greet",
+    input: { name: "Manifest" },
+  });
+  assert.deepStrictEqual(result, [{ message: "Hello, Manifest!" }]);
+});
+
+test("finds the manifest by walking up from the workflow", async () => {
+  const result = await runWorkflow({
+    workflow: resolve(manifestProject, "greeting.yuml"),
+    entry: "greet",
+    input: { name: "Auto" },
+  });
+  assert.deepStrictEqual(result, [{ message: "Hello, Auto!" }]);
+});

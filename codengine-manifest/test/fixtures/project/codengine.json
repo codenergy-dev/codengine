@@ -1,0 +1,7 @@
+{
+  "version": "1",
+  "modules": {
+    "": { "language": "ts", "functions": "./src/tasks.ts" },
+    "images": { "language": "py", "functions": "../shared/img.py", "python": ".venv/bin/python" }
+  }
+}

@@ -1,12 +1,9 @@
 {
-  "name": "codengine-cli",
+  "name": "codengine-manifest",
   "version": "0.1.0",
-  "description": "Standalone orchestrator: parse a yUML workflow and run it through a language-selected runner.",
+  "description": "Load, validate, and resolve a codengine project manifest.",
   "license": "MIT",
   "type": "module",
-  "bin": {
-    "codengine": "dist/src/cli.js"
-  },
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "files": [
@@ -19,11 +16,6 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "tsc && node --test \"dist/test/**/*.test.js\""
-  },
-  "dependencies": {
-    "codengine-manifest": "workspace:*",
-    "codengine-parser": "workspace:*",
-    "codengine-runner-ts": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "22.20.1",

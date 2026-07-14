@@ -69,8 +69,10 @@ Each module is a top-level directory prefixed `codengine-`. Planned layout
 | `codengine-runner-py` | Executes the IR, idiomatic Python (inherits yumlabs image pipelines). | Python |
 | `codengine-analyzer-ts` | Source → task definitions (TS Compiler API). Library + subprocess. | TypeScript |
 | `codengine-analyzer-py` | Source → task definitions (`ast`). Library + subprocess. | Python |
+| `codengine-manifest` | Load/validate/resolve the project manifest (`codengine.json`). Library. | TypeScript |
 | `codengine-cli` | Standalone orchestrator: parse + pick runner(s) + run. | TypeScript |
-| `codengine-vscode` | Command center: autocomplete, intellisense, debug. | TypeScript |
+| `codengine-language-server` | Editing-time assembly: parser + analyzers + manifest → LSP features. Multi-project. | TypeScript |
+| `codengine-vscode` | Thin LSP client for the language server. | TypeScript |
 
 Every runner and analyzer MUST pass its `codengine-spec` conformance suite (the
 runner `runs/`, the analyzer `expected.json`). Those suites are how we keep

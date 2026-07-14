@@ -13,11 +13,19 @@ codengine run <workflow.yuml | .json> --functions <module> [options]
 
 | Option | |
 |---|---|
-| `--functions, -f` | Module with the task functions, in the chosen language (required). |
-| `--language, -l` | `ts` (default) or `py`. |
+| `--functions, -f` | Module with the task functions, in the chosen language. |
+| `--manifest, -m` | A `codengine.json` to resolve functions/language from. If neither `--functions` nor `--manifest` is given, a `codengine.json` is searched for upward from the workflow. |
+| `--language, -l` | `ts` (default) or `py`. Ignored when resolved from a manifest. |
 | `--python` | Python interpreter for `--language py` (must have `codengine-runner` installed). |
 | `--entry, -e` | Entry task (default: the workflow's sole entrypoint). |
 | `--input, -i` | Input as a JSON object (default `{}`). |
+
+With a [`codengine.json`](../codengine-manifest/) next to (or above) the workflow,
+a run needs nothing else:
+
+```sh
+codengine run examples/greeting/workflow.yuml -i '{"name":"Mumbuquinha"}'
+```
 
 The result (the `output` task's collected output) is printed as JSON.
 

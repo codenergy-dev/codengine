@@ -4,7 +4,7 @@ import { runWorkflow } from "./run.js";
 import type { Language } from "./runner/types.js";
 
 const USAGE =
-  "Usage: codengine run <workflow.yuml|.json> --functions <module> " +
+  "Usage: codengine run <workflow.yuml|.json> [--functions <module> | --manifest <codengine.json>] " +
   "[--language ts|py] [--python <path>] [--entry <task>] [--input <json>]";
 
 async function main(argv: string[]): Promise<void> {
@@ -19,6 +19,7 @@ async function main(argv: string[]): Promise<void> {
     allowPositionals: true,
     options: {
       functions: { type: "string", short: "f" },
+      manifest: { type: "string", short: "m" },
       language: { type: "string", short: "l" },
       python: { type: "string" },
       entry: { type: "string", short: "e" },
@@ -27,7 +28,7 @@ async function main(argv: string[]): Promise<void> {
   });
 
   const workflow = positionals[0];
-  if (!workflow || !values.functions) {
+  if (!workflow) {
     console.error(USAGE);
     process.exit(1);
   }
@@ -35,7 +36,8 @@ async function main(argv: string[]): Promise<void> {
   const result = await runWorkflow({
     workflow,
     functions: values.functions,
-    language: (values.language as Language | undefined) ?? "ts",
+    manifest: values.manifest,
+    language: values.language as Language | undefined,
     python: values.python,
     entry: values.entry,
     input: values.input ? (JSON.parse(values.input) as Record<string, unknown>) : {},
