@@ -1,0 +1,11 @@
+[
+  {
+    "name": "resize",
+    "params": [
+      { "name": "width", "kind": "number", "required": true, "nullable": false },
+      { "name": "height", "kind": "number", "required": false, "nullable": false, "default": 100 },
+      { "name": "ratio", "kind": "number", "required": false, "nullable": true, "default": null }
+    ],
+    "acceptsExtra": false
+  }
+]

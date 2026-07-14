@@ -1,0 +1,29 @@
+{
+  "name": "codengine-analyzer-ts",
+  "version": "0.1.0",
+  "description": "Analyze TypeScript task functions into codengine task definitions.",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "bin": {
+    "codengine-analyze-ts": "dist/src/cli.js"
+  },
+  "files": [
+    "dist/src"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc && node --test \"dist/test/**/*.test.js\""
+  },
+  "dependencies": {
+    "typescript": "5.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1"
+  }
+}

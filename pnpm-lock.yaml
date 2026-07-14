@@ -8,6 +8,16 @@ importers:
 
   .: {}
 
+  codengine-analyzer-ts:
+    dependencies:
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+    devDependencies:
+      '@types/node':
+        specifier: 22.20.1
+        version: 22.20.1
+
   codengine-cli:
     dependencies:
       codengine-parser:

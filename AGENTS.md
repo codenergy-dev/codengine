@@ -53,6 +53,7 @@ Representation)**: the parsed workflow graph, serialized as JSON.
 | **function** | The concrete implementation of a task in some language. |
 | **fanIn / fanOut** | A task's incoming / outgoing connections. |
 | **IR** | Intermediate Representation — the workflow graph as JSON; the contract between parser and runners. |
+| **task definition** | The neutral description of a task function's signature (named params) an analyzer emits; the contract between analyzers and editor tooling. |
 | **module** | Namespace a function is resolved from; also the hook for cross-workflow and cross-language routing. |
 
 ## Modules
@@ -62,15 +63,19 @@ Each module is a top-level directory prefixed `codengine-`. Planned layout
 
 | Module | Role | Language |
 |--------|------|----------|
-| `codengine-spec` | IR JSON Schema + execution semantics + conformance suite. No runtime code — the source of truth. | Language-neutral (JSON + Markdown) |
+| `codengine-spec` | IR + task-definition schemas, execution & invocation semantics, conformance suites. No runtime code — the source of truth. | Language-neutral (JSON + Markdown) |
 | `codengine-parser` | Diagram syntax → IR (includes the planner). Library + CLI. | TypeScript |
 | `codengine-runner-ts` | Executes the IR. Library, reused in-process by the extension. | TypeScript |
 | `codengine-runner-py` | Executes the IR, idiomatic Python (inherits yumlabs image pipelines). | Python |
+| `codengine-analyzer-ts` | Source → task definitions (TS Compiler API). Library + subprocess. | TypeScript |
+| `codengine-analyzer-py` | Source → task definitions (`ast`). Library + subprocess. | Python |
 | `codengine-cli` | Standalone orchestrator: parse + pick runner(s) + run. | TypeScript |
 | `codengine-vscode` | Command center: autocomplete, intellisense, debug. | TypeScript |
 
-Every runner MUST pass the `codengine-spec` conformance suite. That suite is how
-we keep behavior identical across languages.
+Every runner and analyzer MUST pass its `codengine-spec` conformance suite (the
+runner `runs/`, the analyzer `expected.json`). Those suites are how we keep
+behavior identical across languages. Runners execute the IR; analyzers describe
+the task functions that the runners bind — two views of the same functions.
 
 ## Repository conventions
 

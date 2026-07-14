@@ -1,0 +1,17 @@
+[
+  {
+    "name": "greet",
+    "params": [
+      { "name": "name", "kind": "string", "required": true, "nullable": false }
+    ],
+    "acceptsExtra": false
+  },
+  {
+    "name": "add",
+    "params": [
+      { "name": "a", "kind": "number", "required": true, "nullable": false },
+      { "name": "b", "kind": "number", "required": true, "nullable": false }
+    ],
+    "acceptsExtra": false
+  }
+]

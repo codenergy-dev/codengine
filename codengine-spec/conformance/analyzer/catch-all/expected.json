@@ -1,0 +1,9 @@
+[
+  {
+    "name": "merge",
+    "params": [
+      { "name": "a", "kind": "number", "required": true, "nullable": false }
+    ],
+    "acceptsExtra": true
+  }
+]

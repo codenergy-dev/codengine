@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codenergy.dev/codengine/schema/task-definition.schema.json",
+  "title": "codengine task definitions",
+  "description": "The neutral description of the task functions found in a source module: their named parameters, produced by a per-language analyzer and consumed by tooling (e.g. the VS Code extension). Version 1.",
+  "type": "object",
+  "required": ["version", "language", "definitions"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "description": "Task-definition spec version.",
+      "const": "1"
+    },
+    "language": {
+      "description": "Language of the analyzer that produced this document (e.g. \"ts\", \"py\").",
+      "type": "string",
+      "minLength": 1
+    },
+    "definitions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/definition" }
+    }
+  },
+  "$defs": {
+    "definition": {
+      "type": "object",
+      "required": ["name", "params", "acceptsExtra"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "Function name; matches a task's `function`.",
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/param" }
+        },
+        "acceptsExtra": {
+          "description": "Whether the function receives input keys beyond its declared params (e.g. Python **kwargs, a TS index signature).",
+          "type": "boolean"
+        }
+      }
+    },
+    "param": {
+      "type": "object",
+      "required": ["name", "kind", "required", "nullable"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "kind": {
+          "description": "Neutral kind, mapped from the native type.",
+          "enum": ["number", "boolean", "string", "array", "object", "any"]
+        },
+        "required": {
+          "description": "True when the parameter has no default value.",
+          "type": "boolean"
+        },
+        "nullable": {
+          "description": "True when the type admits null/None.",
+          "type": "boolean"
+        },
+        "default": {
+          "description": "The literal default value, when the parameter has one. Absent for required params (and for non-literal defaults)."
+        }
+      }
+    }
+  }
+}
