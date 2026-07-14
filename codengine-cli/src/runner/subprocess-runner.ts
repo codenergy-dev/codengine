@@ -23,7 +23,7 @@ export class SubprocessRunner implements Runner {
     ir: WorkflowIR,
     entry: string,
     input: TaskData,
-    functions: string,
+    files: string[],
   ): Promise<TaskData[] | null> {
     return new Promise((resolve, reject) => {
       const child = spawn(this.command, this.args, { stdio: ["pipe", "pipe", "inherit"] });
@@ -42,7 +42,7 @@ export class SubprocessRunner implements Runner {
         if (response.error !== undefined) reject(new Error(response.error));
         else resolve(response.result ?? null);
       });
-      child.stdin.end(JSON.stringify({ ir, entry, input, functions }));
+      child.stdin.end(JSON.stringify({ ir, entry, input, functions: files }));
     });
   }
 }

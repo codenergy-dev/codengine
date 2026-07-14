@@ -8,7 +8,7 @@
     },
     "images": {
       "language": "py",
-      "functions": "../shared-py/image_tasks.py",
+      "functions": ["../shared-py/**/*.py"],
       "python": ".venv/bin/python"
     }
   }

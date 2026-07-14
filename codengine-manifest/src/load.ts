@@ -1,10 +1,24 @@
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, isAbsolute, join, resolve } from "node:path";
+import { existsSync, globSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import type { LoadedManifest, Language, Manifest, ModuleConfig, ResolvedModule } from "./types.js";
 
 export const MANIFEST_FILENAME = "codengine.json";
 
 const LANGUAGES: readonly Language[] = ["ts", "py"];
+
+/**
+ * Expand glob patterns (relative to `baseDir`, or absolute) into a sorted, deduped
+ * list of absolute file paths. Shared by the manifest and the CLI's --functions.
+ */
+export function resolveFunctionFiles(patterns: string[], baseDir: string): string[] {
+  const files = new Set<string>();
+  for (const pattern of patterns) {
+    for (const match of globSync(pattern, { cwd: baseDir })) {
+      files.add(resolve(baseDir, match));
+    }
+  }
+  return [...files].sort();
+}
 
 /** Load and validate a manifest from a file path. */
 export function loadManifest(path: string): LoadedManifest {
@@ -25,7 +39,7 @@ export function findManifest(startDir: string): LoadedManifest | null {
   }
 }
 
-/** Resolve a module (null = the default module "") to concrete, absolute source. */
+/** Resolve a module (null = the default module "") to concrete, absolute files. */
 export function resolveModule(loaded: LoadedManifest, moduleName: string | null): ResolvedModule {
   const name = moduleName ?? "";
   const config = loaded.manifest.modules[name];
@@ -33,10 +47,18 @@ export function resolveModule(loaded: LoadedManifest, moduleName: string | null)
     const label = name === "" ? "(default)" : `'${name}'`;
     throw new Error(`Manifest '${loaded.path}' has no module ${label}.`);
   }
-  const functions = isAbsolute(config.functions)
-    ? config.functions
-    : resolve(loaded.dir, config.functions);
-  return { name, language: config.language, functions, python: config.python };
+  const patterns = Array.isArray(config.functions) ? config.functions : [config.functions];
+  const files = resolveFunctionFiles(patterns, loaded.dir);
+  return { name, language: config.language, files, python: config.python };
+}
+
+function isFunctions(value: unknown): value is string | string[] {
+  if (typeof value === "string") return value.length > 0;
+  return (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    value.every((entry) => typeof entry === "string" && entry.length > 0)
+  );
 }
 
 function validate(value: unknown, path: string): Manifest {
@@ -68,15 +90,15 @@ function validate(value: unknown, path: string): Manifest {
     if (!LANGUAGES.includes(module.language as Language)) {
       fail(`module '${name}' has invalid language (expected one of ${LANGUAGES.join(", ")})`);
     }
-    if (typeof module.functions !== "string" || module.functions.length === 0) {
-      fail(`module '${name}' must have a non-empty \`functions\` path`);
+    if (!isFunctions(module.functions)) {
+      fail(`module '${name}' \`functions\` must be a non-empty glob string or array of strings`);
     }
     if (module.python !== undefined && typeof module.python !== "string") {
       fail(`module '${name}' \`python\` must be a string`);
     }
     modules[name] = {
       language: module.language as Language,
-      functions: module.functions as string,
+      functions: module.functions as string | string[],
       ...(module.python !== undefined ? { python: module.python as string } : {}),
     };
   }

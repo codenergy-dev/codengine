@@ -13,7 +13,7 @@ codengine run <workflow.yuml | .json> --functions <module> [options]
 
 | Option | |
 |---|---|
-| `--functions, -f` | Module with the task functions, in the chosen language. |
+| `--functions, -f` | Comma-separated glob pattern(s) for the task functions (same resolution as a manifest module). |
 | `--manifest, -m` | A `codengine.json` to resolve functions/language from. If neither `--functions` nor `--manifest` is given, a `codengine.json` is searched for upward from the workflow. |
 | `--language, -l` | `ts` (default) or `py`. Ignored when resolved from a manifest. |
 | `--python` | Python interpreter for `--language py` (must have `codengine-runner` installed). |

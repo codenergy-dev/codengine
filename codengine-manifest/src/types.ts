@@ -4,8 +4,8 @@ export type Language = "ts" | "py";
 
 export interface ModuleConfig {
   language: Language;
-  /** Local path to the functions source, relative to the manifest dir or absolute. */
-  functions: string;
+  /** Glob pattern(s) for the functions source, relative to the manifest dir or absolute. */
+  functions: string | string[];
   /** Python interpreter for `language: "py"`. */
   python?: string;
 }
@@ -28,7 +28,7 @@ export interface LoadedManifest {
 export interface ResolvedModule {
   name: string;
   language: Language;
-  /** Absolute path to the functions source. */
-  functions: string;
+  /** Absolute paths to the functions source files (globs expanded). */
+  files: string[];
   python?: string;
 }

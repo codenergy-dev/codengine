@@ -12,7 +12,7 @@ export interface Runner {
     ir: WorkflowIR,
     entry: string,
     input: TaskData,
-    functions: string,
+    files: string[],
   ): Promise<TaskData[] | null>;
 }
 

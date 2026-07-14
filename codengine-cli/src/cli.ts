@@ -3,6 +3,14 @@ import { parseArgs } from "node:util";
 import { runWorkflow } from "./run.js";
 import type { Language } from "./runner/types.js";
 
+// fs.globSync (used to resolve --functions/manifest globs) emits a one-time
+// experimental warning; suppress just that, and keep every other warning.
+process.removeAllListeners("warning");
+process.on("warning", (warning) => {
+  if (warning.name === "ExperimentalWarning" && /\bglob/i.test(warning.message)) return;
+  console.error(warning.stack ?? `${warning.name}: ${warning.message}`);
+});
+
 const USAGE =
   "Usage: codengine run <workflow.yuml|.json> [--functions <module> | --manifest <codengine.json>] " +
   "[--language ts|py] [--python <path>] [--entry <task>] [--input <json>]";

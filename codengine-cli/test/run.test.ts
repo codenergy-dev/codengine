@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { runWorkflow } from "../src/index.js";
+import { loadFunctions, runWorkflow } from "../src/index.js";
 
 const here = dirname(fileURLToPath(import.meta.url)); // dist/test
 const repo = resolve(here, "..", "..", "..");
@@ -66,4 +66,12 @@ test("finds the manifest by walking up from the workflow", async () => {
     input: { name: "Auto" },
   });
   assert.deepStrictEqual(result, [{ message: "Hello, Auto!" }]);
+});
+
+test("loading functions from multiple files rejects a name conflict", async () => {
+  const conflict = resolve(repo, "codengine-cli", "test", "fixtures", "conflict");
+  await assert.rejects(
+    loadFunctions([resolve(conflict, "a.mjs"), resolve(conflict, "b.mjs")]),
+    /Duplicate task function 'greet'/,
+  );
 });

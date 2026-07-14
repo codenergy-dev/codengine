@@ -1,18 +1,39 @@
-"""Load a user's task functions from a Python module path."""
+"""Load a user's task functions from one or more Python module paths."""
 
 import importlib.util
 import inspect
-from typing import Any
+from typing import Union
 
 from .runtime import FunctionMap
 
 
-def load_functions(path: str) -> FunctionMap:
-    """Import the module at `path` and build a function map.
+def load_functions(paths: Union[str, list[str]]) -> FunctionMap:
+    """Load task functions from one or more files and merge them.
 
-    Uses the module-level `FUNCTIONS` dict if present (needed when a task name is a
-    Python keyword, e.g. `pass`); otherwise collects the module's own top-level
-    functions, keyed by name.
+    A name defined in two files is a conflict (rename one, or split into separate
+    modules).
+    """
+    if isinstance(paths, str):
+        paths = [paths]
+
+    functions: FunctionMap = {}
+    origin: dict[str, str] = {}
+    for path in paths:
+        for name, fn in _load_file(path).items():
+            if name in functions:
+                raise ValueError(
+                    f"Duplicate task function '{name}' in module:\n"
+                    f"  {origin[name]}\n  {path}\n"
+                    "Rename one, or split them into separate modules."
+                )
+            functions[name] = fn
+            origin[name] = path
+    return functions
+
+
+def _load_file(path: str) -> FunctionMap:
+    """Load one module's functions: an explicit `FUNCTIONS` dict, or its top-level
+    functions keyed by name.
     """
     spec = importlib.util.spec_from_file_location("_codengine_user_functions", path)
     if spec is None or spec.loader is None:

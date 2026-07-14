@@ -15,7 +15,7 @@ server. Zero runtime dependencies.
     "": { "language": "ts", "functions": "./src/tasks.ts" },
     "images": {
       "language": "py",
-      "functions": "../shared-py/image_tasks.py",
+      "functions": ["../shared-py/**/*.py"],
       "python": ".venv/bin/python"
     }
   }
@@ -23,9 +23,11 @@ server. Zero runtime dependencies.
 ```
 
 `modules` maps a namespace to `{ language, functions, python? }`. The empty key
-`""` is the default module (tasks with `module: null`). `functions` is a local
-path — relative to the manifest dir or absolute — and **may point outside the
-project directory** (e.g. functions from another local repo).
+`""` is the default module (tasks with `module: null`). `functions` is a **glob
+pattern or a list of them** — relative to the manifest dir or absolute — and **may
+point outside the project directory** (e.g. functions from another local repo). A
+module's functions are the union loaded from every matched file; a name defined in
+two files is a conflict (rename one, or split into modules).
 
 Schema: [`../codengine-spec/schema/manifest.schema.json`](../codengine-spec/schema/manifest.schema.json).
 
@@ -41,7 +43,10 @@ const mod = resolveModule(loaded!, null);          // default module -> { langua
 - `loadManifest(path)` → validated manifest + its absolute dir.
 - `findManifest(startDir)` → nearest `codengine.json` walking up, or `null`
   (multi-project: each document resolves to its owning manifest).
-- `resolveModule(loaded, moduleName)` → concrete, absolute source for a module.
+- `resolveModule(loaded, moduleName)` → `{ language, files: string[], python? }` —
+  the module's globs expanded to absolute files.
+- `resolveFunctionFiles(patterns, baseDir)` → the shared glob resolver (also used
+  by the CLI's `--functions`).
 
 ## Development
 

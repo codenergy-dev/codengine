@@ -9,9 +9,9 @@ export class InProcessTsRunner implements Runner {
     ir: WorkflowIR,
     entry: string,
     input: TaskData,
-    functions: string,
+    files: string[],
   ): Promise<TaskData[] | null> {
-    const map = await loadFunctions(functions);
+    const map = await loadFunctions(files);
     return executeTs(ir, map, entry, input);
   }
 }
