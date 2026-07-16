@@ -1,0 +1,8 @@
+{
+  "version": "1",
+  "workflows": ["workflows/*.yuml"],
+  "modules": {
+    "": { "language": "ts", "functions": "./tasks.mjs" },
+    "chain": { "language": "ts", "functions": "./chain.mjs" }
+  }
+}

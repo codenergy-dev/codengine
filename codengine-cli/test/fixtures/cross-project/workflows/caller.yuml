@@ -1,0 +1,3 @@
+[start]->[chain.a]
+[chain.a]->[chain.b]
+[chain.b]->[output]

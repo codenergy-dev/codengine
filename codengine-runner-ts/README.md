@@ -12,19 +12,29 @@ dependencies.
 
 ```ts
 import { run } from "codengine-runner-ts";
-import type { FunctionMap, WorkflowIR } from "codengine-runner-ts";
+import type { ModuleFunctions, WorkflowIR } from "codengine-runner-ts";
 
-const ir: WorkflowIR = /* parse a .yuml, or load a workflow.json */;
+// One or more workflows: they load together as a registry and can call each other.
+const workflows: WorkflowIR[] = [/* parsed .yuml, or loaded workflow.json */];
 
-const functions: FunctionMap = {
-  fetchUser: ({ id }) => ({ user: findUser(id) }),
-  greet: ({ user }) => ({ message: `Hello, ${user.name}` }),
-  output: (input) => input, // terminal collector
+// Functions are bound per module; "" is the default module.
+const functions: ModuleFunctions = {
+  "": {
+    fetchUser: ({ id }) => ({ user: findUser(id) }),
+    greet: ({ user }) => ({ message: `Hello, ${user.name}` }),
+    output: (input) => input, // terminal collector
+  },
 };
 
-const result = run(ir, functions, "fetchUser", { id: 42 });
+const result = run(workflows, functions, "fetchUser", { id: 42 });
 // result: the `output` task's collected output (an array of objects), or null.
 ```
+
+`run`'s third argument is an **address** — a task name, which embeds its module and
+overload (`images.resize`, `echo:seed`). If that address is an entrypoint in another
+workflow of the registry, its whole chain runs and the results are mirrored back;
+otherwise the function runs alone. See the
+[spec](../codengine-spec/semantics/execution.md#cross-workflow-calls).
 
 Inputs use **structured binding** (the
 [invocation contract](../codengine-spec/semantics/execution.md#function-invocation)):

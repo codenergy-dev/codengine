@@ -23,6 +23,41 @@ below.
   (after fanIn merging) is the run's result. A run yields `output`'s output, or
   `null` if `output` never ran.
 
+## Workflows, modules and addresses
+
+A run happens over a **registry** of workflows, not a single one. **Modules** and
+**workflows** are independent: modules export functions; workflows chain them.
+
+- A task's **address** is its `name`, which embeds its module and its overload:
+  `chain.a`, `echo:seed`, `echo`. A task with `module: null` belongs to the default
+  module `""`.
+- The **function** executed is the task's `function` (the name before `:`, after the
+  last `.`), resolved in the task's module.
+- **Overloads are fine**: several aliases of one function (`echo:seed`,
+  `echo:origin`) are distinct addresses and may each be an entrypoint.
+- **Entrypoint uniqueness (hard rule):** an address may be an entrypoint in **at
+  most one** workflow of the registry. Otherwise, calling it would be ambiguous —
+  which chain? A collision is an error, like a duplicate function name.
+
+## Cross-workflow calls
+
+Which chain an address triggers is **discovered**, never named:
+
+- Executing a task whose address is an **entrypoint in another workflow** delegates:
+  that workflow runs from that address, receiving this task's input. Because the
+  address is an entrypoint there, its **whole chain** runs.
+- Otherwise the task executes **locally** — a unit call of its function. This
+  covers both an ordinary local task and a reference to an address that is *not* an
+  entrypoint anywhere (it runs alone, no chain).
+
+**Mirroring.** After a delegated run, every task of the sub-run that produced
+output is copied into the calling workflow's task with the **same address**, which
+is then not re-executed. That is how the caller consumes the sub-chain's results
+(e.g. `[chain.a]->[chain.b]` in the caller receives `chain.b`'s output from the
+sub-run and can feed it onward).
+
+The run's result is the `output` task of the workflow that owns the entry.
+
 ## Task input
 
 A task's input is built from the outputs of its `fanIn` tasks, merged with its

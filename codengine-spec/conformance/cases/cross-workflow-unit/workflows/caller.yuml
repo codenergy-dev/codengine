@@ -1,0 +1,5 @@
+// {type:class}
+// {direction:leftToRight}
+
+[start]->[chain.d]
+[chain.d]->[output]

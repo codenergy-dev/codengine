@@ -20,6 +20,16 @@ export function resolveFunctionFiles(patterns: string[], baseDir: string): strin
   return [...files].sort();
 }
 
+/** Expand the manifest's `workflows` globs into absolute diagram file paths. */
+export function resolveWorkflowFiles(loaded: LoadedManifest): string[] {
+  return resolveFunctionFiles(loaded.manifest.workflows ?? [], loaded.dir);
+}
+
+/** Resolve every module declared in the manifest. */
+export function resolveModules(loaded: LoadedManifest): ResolvedModule[] {
+  return Object.keys(loaded.manifest.modules).map((name) => resolveModule(loaded, name));
+}
+
 /** Load and validate a manifest from a file path. */
 export function loadManifest(path: string): LoadedManifest {
   const absolute = resolve(path);

@@ -8,16 +8,21 @@ language (e.g. Python) as a subprocess.
 ## Usage
 
 ```sh
-codengine run <workflow.yuml | .json> --functions <module> [options]
+codengine run [<workflow-globs>] [--functions <globs> | --manifest <codengine.json>] [options]
 ```
+
+The positional argument is a **comma-separated list of globs** for the workflows
+(`.yuml` is parsed, `.json` is loaded as IR). All matched workflows load together
+as one **registry**, so they can call into each other. Omit it to take the
+workflows from the manifest.
 
 | Option | |
 |---|---|
-| `--functions, -f` | Comma-separated glob pattern(s) for the task functions (same resolution as a manifest module). |
-| `--manifest, -m` | A `codengine.json` to resolve functions/language from. If neither `--functions` nor `--manifest` is given, a `codengine.json` is searched for upward from the workflow. |
+| `--functions, -f` | Comma-separated glob(s) for the default module's functions (same resolution as a manifest module). |
+| `--manifest, -m` | A `codengine.json` to resolve workflows/functions/language from. If omitted, one is searched for upward. |
 | `--language, -l` | `ts` (default) or `py`. Ignored when resolved from a manifest. |
 | `--python` | Python interpreter for `--language py` (must have `codengine-runner` installed). |
-| `--entry, -e` | Entry task (default: the workflow's sole entrypoint). |
+| `--entry, -e` | Entry **address** — a task name, which embeds its module and overload (`chain.a`, `echo:seed`). Default: the registry's sole entrypoint. |
 | `--input, -i` | Input as a JSON object (default `{}`). |
 
 With a [`codengine.json`](../codengine-manifest/) next to (or above) the workflow,

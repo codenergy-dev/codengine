@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import type { TaskData, WorkflowIR } from "codengine-runner-ts";
-import type { Runner } from "./types.js";
+import type { ModuleFiles, Runner } from "./types.js";
 
 interface Response {
   result?: TaskData[] | null;
@@ -8,9 +8,9 @@ interface Response {
 }
 
 /**
- * Runs a workflow in another language's runner as a subprocess, exchanging JSON
- * over stdio:
- *   in:  { ir, entry, input, functions }
+ * Runs a workflow registry in another language's runner as a subprocess, exchanging
+ * JSON over stdio:
+ *   in:  { workflows, entry, input, functions: { <module>: [files] } }
  *   out: { result } | { error }
  */
 export class SubprocessRunner implements Runner {
@@ -20,10 +20,10 @@ export class SubprocessRunner implements Runner {
   ) {}
 
   run(
-    ir: WorkflowIR,
+    workflows: WorkflowIR[],
     entry: string,
     input: TaskData,
-    files: string[],
+    modules: ModuleFiles,
   ): Promise<TaskData[] | null> {
     return new Promise((resolve, reject) => {
       const child = spawn(this.command, this.args, { stdio: ["pipe", "pipe", "inherit"] });
@@ -42,7 +42,7 @@ export class SubprocessRunner implements Runner {
         if (response.error !== undefined) reject(new Error(response.error));
         else resolve(response.result ?? null);
       });
-      child.stdin.end(JSON.stringify({ ir, entry, input, functions: files }));
+      child.stdin.end(JSON.stringify({ workflows, entry, input, functions: modules }));
     });
   }
 }

@@ -1,0 +1,4 @@
+// {type:class}
+// {direction:leftToRight}
+
+[chain.a]->[chain.b]

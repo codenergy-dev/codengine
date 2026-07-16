@@ -1,0 +1,5 @@
+{
+  "entry": "start",
+  "input": {},
+  "expectedOutput": [{ "trail": ["start", "a", "b"] }]
+}

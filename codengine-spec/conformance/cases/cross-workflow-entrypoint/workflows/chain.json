@@ -1,0 +1,43 @@
+{
+  "version": "1",
+  "workflow": "chain",
+  "tasks": [
+    {
+      "name": "chain.a",
+      "function": "a",
+      "module": "chain",
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": [
+        "chain.b"
+      ],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": [
+        "chain.a",
+        "chain.b"
+      ]
+    },
+    {
+      "name": "chain.b",
+      "function": "b",
+      "module": "chain",
+      "args": {},
+      "fanIn": [
+        "chain.a"
+      ],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "chain.a"
+      ],
+      "executionPlan": [
+        "chain.b"
+      ]
+    }
+  ]
+}

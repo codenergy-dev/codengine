@@ -3,6 +3,8 @@ export {
   loadManifest,
   findManifest,
   resolveModule,
+  resolveModules,
   resolveFunctionFiles,
+  resolveWorkflowFiles,
   MANIFEST_FILENAME,
 } from "./load.js";

@@ -1,0 +1,93 @@
+{
+  "version": "1",
+  "workflow": "caller",
+  "tasks": [
+    {
+      "name": "start",
+      "function": "start",
+      "module": null,
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": [
+        "chain.a"
+      ],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": [
+        "start",
+        "chain.a",
+        "chain.b",
+        "output"
+      ]
+    },
+    {
+      "name": "chain.a",
+      "function": "a",
+      "module": "chain",
+      "args": {},
+      "fanIn": [
+        "start"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "chain.b"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "start"
+      ],
+      "executionPlan": [
+        "chain.a",
+        "chain.b",
+        "output"
+      ]
+    },
+    {
+      "name": "chain.b",
+      "function": "b",
+      "module": "chain",
+      "args": {},
+      "fanIn": [
+        "chain.a"
+      ],
+      "fanInNullable": [],
+      "fanOut": [
+        "output"
+      ],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "start",
+        "chain.a"
+      ],
+      "executionPlan": [
+        "chain.b",
+        "output"
+      ]
+    },
+    {
+      "name": "output",
+      "function": "output",
+      "module": null,
+      "args": {},
+      "fanIn": [
+        "chain.b"
+      ],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": [
+        "start",
+        "chain.a",
+        "chain.b"
+      ],
+      "executionPlan": [
+        "output"
+      ]
+    }
+  ]
+}

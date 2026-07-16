@@ -13,17 +13,26 @@ Pure standard library — zero third-party dependencies (tests included).
 ```python
 from codengine_runner import run
 
-ir = ...  # a parsed workflow.json (dict)
+# One or more workflows: they load together as a registry and can call each other.
+workflows = [...]  # parsed workflow.json documents (dicts)
 
+# Functions are bound per module; "" is the default module.
 functions = {
-    "fetch_user": lambda id: {"user": find_user(id)},
-    "greet": lambda user: {"message": f"Hello, {user['name']}"},
-    "output": lambda **data: data,  # terminal collector
+    "": {
+        "fetch_user": lambda id: {"user": find_user(id)},
+        "greet": lambda user: {"message": f"Hello, {user['name']}"},
+        "output": lambda **data: data,  # terminal collector
+    },
 }
 
-result = run(ir, functions, "fetch_user", {"id": 42})
+result = run(workflows, functions, "fetch_user", {"id": 42})
 # result: the `output` task's collected output (list[dict]), or None.
 ```
+
+The third argument is an **address** — a task name, which embeds its module and
+overload (`images.resize`, `echo:seed`). If that address is an entrypoint in another
+workflow of the registry, its whole chain runs and the results are mirrored back;
+otherwise the function runs alone.
 
 Inputs are bound as **named arguments** (the
 [invocation contract](../codengine-spec/semantics/execution.md#function-invocation)):
@@ -48,13 +57,13 @@ The runner also runs as a process speaking a JSON protocol over stdio, which is
 how [`codengine-cli`](../codengine-cli/) executes Python workflows:
 
 ```sh
-echo '{"ir": {...}, "entry": "task", "input": {...}, "functions": "/path/to/funcs.py"}' \
-  | python -m codengine_runner
+echo '{"workflows": [...], "entry": "task", "input": {...},
+       "functions": {"": ["/path/to/funcs.py"]}}' | python -m codengine_runner
 # -> {"result": [ ... ]}   or   {"error": "..."}
 ```
 
-The functions module is loaded by its top-level functions, or an explicit
-`FUNCTIONS` dict.
+`functions` maps each module to its files; each file contributes its top-level
+functions, or an explicit `FUNCTIONS` dict.
 
 ## Development
 

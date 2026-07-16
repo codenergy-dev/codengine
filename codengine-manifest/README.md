@@ -10,7 +10,7 @@ server. Zero runtime dependencies.
 ```jsonc
 {
   "version": "1",
-  "workflows": ["workflows"],
+  "workflows": ["workflows/**/*.yuml"],
   "modules": {
     "": { "language": "ts", "functions": "./src/tasks.ts" },
     "images": {
@@ -45,8 +45,11 @@ const mod = resolveModule(loaded!, null);          // default module -> { langua
   (multi-project: each document resolves to its owning manifest).
 - `resolveModule(loaded, moduleName)` → `{ language, files: string[], python? }` —
   the module's globs expanded to absolute files.
+- `resolveModules(loaded)` → every declared module, resolved.
+- `resolveWorkflowFiles(loaded)` → the `workflows` globs expanded to absolute
+  diagram paths (all of them load together as one registry).
 - `resolveFunctionFiles(patterns, baseDir)` → the shared glob resolver (also used
-  by the CLI's `--functions`).
+  by the CLI's `--functions` and workflow globs).
 
 ## Development
 

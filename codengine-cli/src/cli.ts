@@ -12,8 +12,8 @@ process.on("warning", (warning) => {
 });
 
 const USAGE =
-  "Usage: codengine run <workflow.yuml|.json> [--functions <module> | --manifest <codengine.json>] " +
-  "[--language ts|py] [--python <path>] [--entry <task>] [--input <json>]";
+  "Usage: codengine run [<workflow-globs>] [--functions <globs> | --manifest <codengine.json>] " +
+  "[--language ts|py] [--python <path>] [--entry <address>] [--input <json>]";
 
 async function main(argv: string[]): Promise<void> {
   const [command, ...rest] = argv;
@@ -35,14 +35,8 @@ async function main(argv: string[]): Promise<void> {
     },
   });
 
-  const workflow = positionals[0];
-  if (!workflow) {
-    console.error(USAGE);
-    process.exit(1);
-  }
-
   const result = await runWorkflow({
-    workflow,
+    workflows: positionals[0],
     functions: values.functions,
     manifest: values.manifest,
     language: values.language as Language | undefined,

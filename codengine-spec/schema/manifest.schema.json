@@ -12,7 +12,7 @@
       "const": "1"
     },
     "workflows": {
-      "description": "Paths (dirs or globs, relative to the manifest) where the .yuml diagrams live.",
+      "description": "Glob pattern(s) matching the workflow diagrams, relative to the manifest or absolute (e.g. \"workflows/**/*.yuml\"). All matched workflows are loaded together as one registry.",
       "type": "array",
       "items": { "type": "string" }
     },

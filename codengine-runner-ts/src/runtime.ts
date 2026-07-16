@@ -8,6 +8,8 @@ import type { Task, WorkflowIR } from "./types.js";
 export type TaskData = Record<string, unknown>;
 export type TaskFunction = (input: TaskData) => unknown;
 export type FunctionMap = Record<string, TaskFunction>;
+/** Functions bound per module namespace; `""` is the default module. */
+export type ModuleFunctions = Record<string, FunctionMap>;
 
 // Per-task run state:
 //   TaskData[]  ran and produced these outputs
@@ -104,30 +106,102 @@ function classify(
 }
 
 /**
- * Run a workflow from `entry` with `input`. Returns the `output` task's collected
- * output, or `null` if it never ran.
+ * Index every entrypoint address to the workflow that owns it. An address may be an
+ * entrypoint in at most one workflow — otherwise the chain to trigger is ambiguous.
+ */
+function buildEntrypointIndex(workflows: WorkflowIR[]): Map<string, string> {
+  const index = new Map<string, string>();
+  for (const workflow of workflows) {
+    for (const task of workflow.tasks) {
+      if (!task.entrypoint) continue;
+      const owner = index.get(task.name);
+      if (owner) {
+        throw new Error(
+          `Address '${task.name}' is an entrypoint in more than one workflow:\n` +
+            `  ${owner}\n  ${workflow.workflow}\n` +
+            "An address may be an entrypoint in at most one workflow.",
+        );
+      }
+      index.set(task.name, workflow.workflow);
+    }
+  }
+  return index;
+}
+
+function resolveFunction(functions: ModuleFunctions, task: Task): TaskFunction {
+  const module = task.module ?? "";
+  const fn = functions[module]?.[task.function];
+  if (!fn) {
+    const label = module === "" ? "the default module" : `module '${module}'`;
+    throw new Error(`No function '${task.function}' bound in ${label} (task '${task.name}').`);
+  }
+  return fn;
+}
+
+/**
+ * Run a workflow registry from the `entry` address with `input`. Returns the
+ * `output` task's collected output of the workflow that owns the entry, or `null`.
  */
 export function run(
-  ir: WorkflowIR,
-  functions: FunctionMap,
+  workflows: WorkflowIR[],
+  functions: ModuleFunctions,
   entry: string,
   input: TaskData = {},
 ): TaskData[] | null {
-  const tasks = new Map(ir.tasks.map((task) => [task.name, task]));
-  const entryTask = tasks.get(entry);
-  if (!entryTask) throw new Error(`Unknown entry task '${entry}'.`);
+  const registry = new Map(workflows.map((workflow) => [workflow.workflow, workflow]));
+  const entrypoints = buildEntrypointIndex(workflows);
 
+  const owner = entrypoints.get(entry);
+  let target = owner;
+  let isolated = false;
+  if (!target) {
+    // Not an entrypoint anywhere: a unit call of that address, wherever it is declared.
+    for (const [name, ir] of registry) {
+      if (ir.tasks.some((task) => task.name === entry)) {
+        target = name;
+        isolated = true;
+        break;
+      }
+    }
+  }
+  if (!target) throw new Error(`Unknown entry address '${entry}'.`);
+
+  const state = executeWorkflow(registry, functions, entrypoints, target, entry, input, isolated);
+  const result = state.get("output");
+  return result === undefined ? null : result;
+}
+
+function executeWorkflow(
+  registry: Map<string, WorkflowIR>,
+  functions: ModuleFunctions,
+  entrypoints: Map<string, string>,
+  workflowName: string,
+  entryTask: string,
+  input: TaskData,
+  isolated: boolean,
+): Map<string, State> {
+  const ir = registry.get(workflowName);
+  if (!ir) throw new Error(`Unknown workflow '${workflowName}'.`);
+  const tasks = new Map(ir.tasks.map((task) => [task.name, task]));
+  const entry = tasks.get(entryTask);
+  if (!entry) throw new Error(`Unknown task '${entryTask}' in workflow '${workflowName}'.`);
+
+  // An isolated entry is a unit call: only that task, ignoring its fanIn.
+  const plan = isolated ? [entryTask] : entry.executionPlan;
   const state = new Map<string, State>();
   const injected = new Map<string, TaskData[]>();
 
-  for (const name of entryTask.executionPlan) {
+  for (const name of plan) {
     const task = tasks.get(name);
     if (!task) continue;
+    if (state.has(name)) continue; // already resolved (e.g. mirrored from a sub-run)
 
     let inputs: TaskData[];
     const injectedInputs = injected.get(name);
     if (injectedInputs) {
       inputs = injectedInputs;
+    } else if (isolated && name === entryTask) {
+      inputs = [{}];
     } else {
       // A required fanIn that ran and produced no data blocks this task.
       const blocked = task.fanIn.some(
@@ -153,10 +227,39 @@ export function run(
     }
 
     // The run input replaces the entry task's declared args.
-    const args = name === entry ? input : task.args;
-    const fn = functions[task.function];
-    if (!fn) throw new Error(`No function bound for '${task.function}' (task '${name}').`);
+    const args = name === entryTask ? input : task.args;
 
+    // Cross-workflow call: this address is an entrypoint in another workflow, so
+    // that workflow's chain runs and its results are mirrored back here.
+    const chainOwner = entrypoints.get(name);
+    if (chainOwner && chainOwner !== workflowName) {
+      const mirrored = new Map<string, TaskData[]>();
+      for (const raw of inputs) {
+        const subInput = formatData(task, { ...raw, ...args }, "input");
+        const subState = executeWorkflow(
+          registry,
+          functions,
+          entrypoints,
+          chainOwner,
+          name,
+          subInput,
+          false,
+        );
+        for (const [subName, subOutput] of subState) {
+          if (!tasks.has(subName) || !Array.isArray(subOutput)) continue;
+          const accumulated = mirrored.get(subName) ?? [];
+          accumulated.push(...subOutput);
+          mirrored.set(subName, accumulated);
+        }
+      }
+      for (const [mirroredName, outputs] of mirrored) {
+        if (!state.has(mirroredName)) state.set(mirroredName, outputs);
+      }
+      if (!state.has(name)) state.set(name, null);
+      continue;
+    }
+
+    const fn = resolveFunction(functions, task);
     const outputs: TaskData[] = [];
     let routed = false;
     for (const raw of inputs) {
@@ -167,6 +270,5 @@ export function run(
     state.set(name, routed ? null : outputs.length > 0 ? outputs : null);
   }
 
-  const result = state.get("output");
-  return result === undefined ? null : result;
+  return state;
 }

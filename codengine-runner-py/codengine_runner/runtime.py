@@ -12,6 +12,8 @@ from typing import Any, Callable, Optional
 TaskData = dict[str, Any]
 TaskFunction = Callable[..., Any]
 FunctionMap = dict[str, TaskFunction]
+#: Functions bound per module namespace; "" is the default module.
+ModuleFunctions = dict[str, FunctionMap]
 
 
 class MissingInputError(Exception):
@@ -136,32 +138,104 @@ def _classify(
     )
 
 
+def _build_entrypoint_index(workflows: list[dict]) -> dict[str, str]:
+    """Index every entrypoint address to the workflow that owns it. An address may be
+    an entrypoint in at most one workflow — otherwise the chain is ambiguous.
+    """
+    index: dict[str, str] = {}
+    for workflow in workflows:
+        for task in workflow["tasks"]:
+            if not task["entrypoint"]:
+                continue
+            owner = index.get(task["name"])
+            if owner is not None:
+                raise ValueError(
+                    f"Address '{task['name']}' is an entrypoint in more than one workflow:\n"
+                    f"  {owner}\n  {workflow['workflow']}\n"
+                    "An address may be an entrypoint in at most one workflow."
+                )
+            index[task["name"]] = workflow["workflow"]
+    return index
+
+
+def _resolve_function(functions: ModuleFunctions, task: dict) -> TaskFunction:
+    module = task["module"] or ""
+    fn = functions.get(module, {}).get(task["function"])
+    if fn is None:
+        label = "the default module" if module == "" else f"module '{module}'"
+        raise ValueError(
+            f"No function '{task['function']}' bound in {label} (task '{task['name']}')."
+        )
+    return fn
+
+
 def run(
-    ir: dict,
-    functions: FunctionMap,
+    workflows: list[dict],
+    functions: ModuleFunctions,
     entry: str,
     data: Optional[TaskData] = None,
 ) -> Optional[list[TaskData]]:
-    """Run a workflow from `entry` with `data`. Returns the `output` task's
-    collected output, or None if it never ran.
+    """Run a workflow registry from the `entry` address with `data`. Returns the
+    `output` task's collected output of the workflow that owns the entry, or None.
     """
     run_input: TaskData = data or {}
-    tasks = {task["name"]: task for task in ir["tasks"]}
-    if entry not in tasks:
-        raise ValueError(f"Unknown entry task '{entry}'.")
+    registry = {workflow["workflow"]: workflow for workflow in workflows}
+    entrypoints = _build_entrypoint_index(workflows)
 
-    # state: name present -> list[dict] (produced) or None (ran, no data).
+    target = entrypoints.get(entry)
+    isolated = False
+    if target is None:
+        # Not an entrypoint anywhere: a unit call of that address, wherever declared.
+        for name, ir in registry.items():
+            if any(task["name"] == entry for task in ir["tasks"]):
+                target = name
+                isolated = True
+                break
+    if target is None:
+        raise ValueError(f"Unknown entry address '{entry}'.")
+
+    state = _execute_workflow(
+        registry, functions, entrypoints, target, entry, run_input, isolated
+    )
+    return state.get("output")
+
+
+def _execute_workflow(
+    registry: dict[str, dict],
+    functions: ModuleFunctions,
+    entrypoints: dict[str, str],
+    workflow_name: str,
+    entry_task: str,
+    run_input: TaskData,
+    isolated: bool,
+) -> dict[str, Optional[list[TaskData]]]:
+    ir = registry.get(workflow_name)
+    if ir is None:
+        raise ValueError(f"Unknown workflow '{workflow_name}'.")
+    tasks = {task["name"]: task for task in ir["tasks"]}
+    entry = tasks.get(entry_task)
+    if entry is None:
+        raise ValueError(f"Unknown task '{entry_task}' in workflow '{workflow_name}'.")
+
+    # An isolated entry is a unit call: only that task, ignoring its fanIn.
+    plan = [entry_task] if isolated else entry["executionPlan"]
+
+    # state: name present -> list (produced) or None (ran, no data).
     # A name absent from `state` means the task never ran (skipped).
     state: dict[str, Optional[list[TaskData]]] = {}
     injected: dict[str, list[TaskData]] = {}
 
-    for name in tasks[entry]["executionPlan"]:
+    for name in plan:
         task = tasks.get(name)
         if task is None:
             continue
+        if name in state:
+            continue  # already resolved (e.g. mirrored from a sub-run)
 
         if name in injected:
             inputs = injected[name]
+        elif isolated and name == entry_task:
+            inputs = [{}]
         else:
             # A required fanIn that ran and produced no data (None) blocks this task.
             blocked = any(
@@ -180,12 +254,31 @@ def run(
                 inputs = _cartesian_merge(present)
 
         # The run input replaces the entry task's declared args.
-        args = run_input if name == entry else task["args"]
-        fn = functions.get(task["function"])
-        if fn is None:
-            raise ValueError(f"No function bound for '{task['function']}' (task '{name}').")
+        args = run_input if name == entry_task else task["args"]
 
-        outputs: list[TaskData] = []
+        # Cross-workflow call: this address is an entrypoint in another workflow, so
+        # that workflow's chain runs and its results are mirrored back here.
+        chain_owner = entrypoints.get(name)
+        if chain_owner is not None and chain_owner != workflow_name:
+            mirrored: dict[str, list[TaskData]] = {}
+            for raw in inputs:
+                sub_input = _format_data(task, {**raw, **args}, "input")
+                sub_state = _execute_workflow(
+                    registry, functions, entrypoints, chain_owner, name, sub_input, False
+                )
+                for sub_name, sub_output in sub_state.items():
+                    if sub_name not in tasks or not isinstance(sub_output, list):
+                        continue
+                    mirrored.setdefault(sub_name, []).extend(sub_output)
+            for mirrored_name, outputs in mirrored.items():
+                if mirrored_name not in state:
+                    state[mirrored_name] = outputs
+            if name not in state:
+                state[name] = None
+            continue
+
+        fn = _resolve_function(functions, task)
+        outputs = []
         routed = False
         for raw in inputs:
             formatted = _format_data(task, {**raw, **args}, "input")
@@ -194,4 +287,4 @@ def run(
 
         state[name] = None if routed else (outputs if outputs else None)
 
-    return state.get("output")
+    return state

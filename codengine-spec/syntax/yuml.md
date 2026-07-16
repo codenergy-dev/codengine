@@ -58,7 +58,8 @@ After building the raw graph (nodes + typed edges), the parser runs the
 
 - `dependencies` — its transitive upstream tasks.
 - `executionPlan` — the ordered set of tasks to run starting from it.
-- `entrypoint` — whether it may start an execution.
+- `entrypoint` — whether it may start an execution: a task with **no required
+  fanIn**. The rule is uniform — a module-qualified (dotted) task is no different.
 
 Runners never recompute these; they trust the IR. This is what keeps porting a
 runner to a new language cheap, and it is why the plan lives in the IR rather
