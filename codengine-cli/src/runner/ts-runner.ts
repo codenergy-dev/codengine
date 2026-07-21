@@ -1,19 +1,19 @@
+import { loadFunctions } from "codengine-loader-ts";
 import { run as executeTs } from "codengine-runner-ts";
 import type { ModuleFunctions, TaskData, WorkflowIR } from "codengine-runner-ts";
-import { loadFunctions } from "../load-functions.js";
-import type { ModuleFiles, Runner } from "./types.js";
+import type { ModuleBinding, Runner } from "./types.js";
 
-/** Runs TypeScript/JS workflows in-process (the CLI is itself a Node process). */
+/** Runs TypeScript/JS workflows in-process (used for pre-built `.js`/`.mjs`). */
 export class InProcessTsRunner implements Runner {
   async run(
     workflows: WorkflowIR[],
     entry: string,
     input: TaskData,
-    modules: ModuleFiles,
+    modules: Record<string, ModuleBinding>,
   ): Promise<TaskData[] | null> {
     const functions: ModuleFunctions = {};
-    for (const [module, files] of Object.entries(modules)) {
-      functions[module] = await loadFunctions(files);
+    for (const [module, binding] of Object.entries(modules)) {
+      functions[module] = await loadFunctions(binding.files);
     }
     return executeTs(workflows, functions, entry, input);
   }

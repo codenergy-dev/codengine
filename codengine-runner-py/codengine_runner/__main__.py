@@ -3,7 +3,7 @@
 Reads a request from stdin and writes a response to stdout, both JSON:
 
     in:  { "workflows": [<WorkflowIR>], "entry": str, "input": object,
-           "functions": { "<module>": [<file>] } }
+           "functions": { "<module>": { "files": [<file>], "root": str | null } } }
     out: { "result": object[] | null }   or   { "error": str }
 
 This is how the codengine orchestrator (codengine-cli) runs a Python workflow as a
@@ -21,8 +21,8 @@ def main() -> int:
     try:
         request = json.load(sys.stdin)
         functions = {
-            module: load_functions(files)
-            for module, files in request["functions"].items()
+            module: load_functions(spec["files"], spec.get("root"))
+            for module, spec in request["functions"].items()
         }
         result = run(
             request["workflows"],

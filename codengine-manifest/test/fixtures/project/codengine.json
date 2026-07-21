@@ -3,6 +3,11 @@
   "modules": {
     "": { "language": "ts", "functions": "./src/tasks.ts" },
     "many": { "language": "ts", "functions": ["src/**/*.ts"] },
-    "images": { "language": "py", "functions": ["../shared/*.py"], "python": ".venv/bin/python" }
+    "images": {
+      "language": "py",
+      "root": "../shared",
+      "functions": ["*.py"],
+      "python": ".venv/bin/python"
+    }
   }
 }

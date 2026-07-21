@@ -11,7 +11,7 @@ import type { LoadedManifest } from "codengine-manifest";
 import { parseWorkflow } from "codengine-parser";
 import type { TaskData, WorkflowIR } from "codengine-runner-ts";
 import { selectRunner } from "./runner/select.js";
-import type { Language, ModuleFiles } from "./runner/types.js";
+import type { Language, ModuleBinding } from "./runner/types.js";
 
 export interface RunWorkflowOptions {
   /** Comma-separated glob(s) for the workflows (.yuml parsed, .json loaded as IR). */
@@ -29,8 +29,8 @@ export interface RunWorkflowOptions {
   input?: TaskData;
 }
 
-interface RunProfile {
-  modules: ModuleFiles;
+interface Bindings {
+  modules: Record<string, ModuleBinding>;
   language: Language;
   python?: string;
 }
@@ -39,23 +39,22 @@ interface RunProfile {
 export async function runWorkflow(options: RunWorkflowOptions): Promise<TaskData[] | null> {
   const manifest = findProjectManifest(options);
   const workflows = loadWorkflows(options, manifest);
-  const profile = resolveProfile(options, manifest);
+  const { modules, language, python } = resolveBindings(options, manifest);
   const entry = options.entry ?? soleEntrypoint(workflows);
-  const runner = selectRunner({ language: profile.language, python: profile.python });
-  return runner.run(workflows, entry, options.input ?? {}, profile.modules);
+  const tsSubprocess =
+    language === "ts" &&
+    Object.values(modules).some((binding) => binding.files.some((f) => extname(f) === ".ts"));
+  const runner = selectRunner({ language, python, tsSubprocess });
+  return runner.run(workflows, entry, options.input ?? {}, modules);
 }
 
 function splitPatterns(value: string): string[] {
-  return value
-    .split(",")
-    .map((pattern) => pattern.trim())
-    .filter(Boolean);
+  return value.split(",").map((p) => p.trim()).filter(Boolean);
 }
 
 function findProjectManifest(options: RunWorkflowOptions): LoadedManifest | null {
   if (options.manifest) return loadManifest(options.manifest);
-  // Only look for one when something still has to be resolved from it.
-  if (options.functions && options.workflows) return null;
+  if (options.functions && options.workflows) return null; // nothing left to resolve
   const start = options.workflows
     ? dirname(resolve(splitPatterns(options.workflows)[0] ?? "."))
     : process.cwd();
@@ -81,11 +80,15 @@ function loadWorkflow(file: string): WorkflowIR {
   return parseWorkflow(source, basename(file).split(".")[0]) as WorkflowIR;
 }
 
-// Where each module's functions are and how to run them: explicit flags, or the manifest.
-function resolveProfile(options: RunWorkflowOptions, manifest: LoadedManifest | null): RunProfile {
+// Where each module's functions are (files + env), from explicit flags or the manifest.
+function resolveBindings(options: RunWorkflowOptions, manifest: LoadedManifest | null): Bindings {
   if (options.functions) {
     const files = resolveFunctionFiles(splitPatterns(options.functions), process.cwd());
-    return { modules: { "": files }, language: options.language ?? "ts", python: options.python };
+    return {
+      modules: { "": { files, root: null } },
+      language: options.language ?? "ts",
+      python: options.python,
+    };
   }
   if (!manifest) {
     throw new Error(
@@ -104,13 +107,17 @@ function resolveProfile(options: RunWorkflowOptions, manifest: LoadedManifest | 
     );
   }
 
-  const modules: ModuleFiles = {};
-  for (const module of resolved) modules[module.name] = module.files;
-  return {
-    modules,
-    language: languages[0],
-    python: options.python ?? resolved.find((module) => module.python)?.python,
-  };
+  const interpreters = [...new Set(resolved.map((m) => m.python).filter((p): p is string => !!p))];
+  if (interpreters.length > 1) {
+    throw new Error(
+      `Modules use different Python interpreters (${interpreters.join(", ")}). ` +
+        "Not supported in one run yet.",
+    );
+  }
+
+  const modules: Record<string, ModuleBinding> = {};
+  for (const module of resolved) modules[module.name] = { files: module.files, root: module.root };
+  return { modules, language: languages[0], python: options.python ?? interpreters[0] };
 }
 
 function soleEntrypoint(workflows: WorkflowIR[]): string {

@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import type { TaskData, WorkflowIR } from "codengine-runner-ts";
-import type { ModuleFiles, Runner } from "./types.js";
+import type { ModuleBinding, Runner } from "./types.js";
 
 interface Response {
   result?: TaskData[] | null;
@@ -23,7 +23,7 @@ export class SubprocessRunner implements Runner {
     workflows: WorkflowIR[],
     entry: string,
     input: TaskData,
-    modules: ModuleFiles,
+    modules: Record<string, ModuleBinding>,
   ): Promise<TaskData[] | null> {
     return new Promise((resolve, reject) => {
       const child = spawn(this.command, this.args, { stdio: ["pipe", "pipe", "inherit"] });

@@ -1,0 +1,1 @@
+{ "version": "1", "workflows": ["*.yuml"], "modules": { "": { "language": "ts", "root": ".", "functions": ["tasks.ts"] } } }

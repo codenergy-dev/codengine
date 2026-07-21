@@ -1,20 +1,26 @@
-"""Load a user's task functions from one or more Python module paths."""
+"""Load a user's task functions from one or more Python module paths, within the
+module's project environment (its `root`)."""
 
 import importlib.util
 import inspect
-from typing import Union
+import sys
+from typing import Optional, Union
 
 from .runtime import FunctionMap
 
 
-def load_functions(paths: Union[str, list[str]]) -> FunctionMap:
+def load_functions(paths: Union[str, list[str]], root: Optional[str] = None) -> FunctionMap:
     """Load task functions from one or more files and merge them.
 
-    A name defined in two files is a conflict (rename one, or split into separate
-    modules).
+    `root` is the module's project directory (its dependency environment); it is put
+    on `sys.path` so the functions' own imports — sibling modules and installed
+    packages — resolve. A name defined in two files is a conflict (rename one, or
+    split into separate modules).
     """
     if isinstance(paths, str):
         paths = [paths]
+    if root and root not in sys.path:
+        sys.path.insert(0, root)
 
     functions: FunctionMap = {}
     origin: dict[str, str] = {}

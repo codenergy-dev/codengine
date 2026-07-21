@@ -90,3 +90,26 @@ test("runs a multi-workflow project with a cross-workflow call", async () => {
   });
   assert.deepStrictEqual(result, [{ trail: ["start", "a", "b"] }]);
 });
+
+// Source `.ts` functions run via the strip-types subprocess; `tasks.ts` imports a
+// sibling `.ts`, proving deps resolve at runtime.
+test("runs TypeScript source (.ts) importing a sibling, via strip-types", async () => {
+  const result = await runWorkflow({
+    manifest: join(fixtures, "ts-source", "codengine.json"),
+    entry: "greet",
+    input: { name: "TS" },
+  });
+  assert.deepStrictEqual(result, [{ message: "Hello, TS (from sibling .ts)" }]);
+});
+
+// A Python function that imports a sibling module resolves it because the module's
+// `root` is put on sys.path — the dependency environment.
+test("runs a Python module whose function imports a sibling via its root", { skip: !existsSync(pyPython) }, async () => {
+  const result = await runWorkflow({
+    manifest: join(fixtures, "py-root", "codengine.json"),
+    python: pyPython,
+    entry: "greet",
+    input: { name: "root" },
+  });
+  assert.deepStrictEqual(result, [{ message: "root:sibling-ok" }]);
+});

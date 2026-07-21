@@ -19,11 +19,12 @@ test("loads and validates a manifest", () => {
   assert.equal(loaded.dir, projectDir);
 });
 
-test("resolves the default module (single glob) to its file", () => {
+test("resolves the default module (single glob) + auto-detected root", () => {
   const loaded = loadManifest(project);
   const resolved = resolveModule(loaded, null);
   assert.equal(resolved.language, "ts");
   assert.deepEqual(resolved.files, [resolve(projectDir, "src", "tasks.ts")]);
+  assert.equal(resolved.root, projectDir); // detected via package.json
 });
 
 test("expands a recursive glob to multiple files (sorted)", () => {
@@ -33,17 +34,19 @@ test("expands a recursive glob to multiple files (sorted)", () => {
     resolve(projectDir, "src", "nested", "more.ts"),
     resolve(projectDir, "src", "tasks.ts"),
   ]);
+  assert.equal(resolved.root, projectDir);
 });
 
-test("resolves a glob whose files live outside the project dir", () => {
+test("an explicit root: globs and python resolve against it, files outside the project", () => {
   const loaded = loadManifest(project);
   const resolved = resolveModule(loaded, "images");
   assert.equal(resolved.language, "py");
+  assert.equal(resolved.root, sharedDir);
   assert.deepEqual(resolved.files, [
     resolve(sharedDir, "img.py"),
     resolve(sharedDir, "util.py"),
   ]);
-  assert.equal(resolved.python, ".venv/bin/python");
+  assert.equal(resolved.python, resolve(sharedDir, ".venv", "bin", "python"));
 });
 
 test("finds the manifest by walking up", () => {

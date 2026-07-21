@@ -9,9 +9,7 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "test"],
-  "exclude": ["test/fixtures/ts-source"]
+  "include": ["src"]
 }

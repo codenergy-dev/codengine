@@ -58,12 +58,15 @@ how [`codengine-cli`](../codengine-cli/) executes Python workflows:
 
 ```sh
 echo '{"workflows": [...], "entry": "task", "input": {...},
-       "functions": {"": ["/path/to/funcs.py"]}}' | python -m codengine_runner
+       "functions": {"": {"files": ["/path/to/funcs.py"], "root": "/path/to/project"}}}' \
+  | python -m codengine_runner
 # -> {"result": [ ... ]}   or   {"error": "..."}
 ```
 
-`functions` maps each module to its files; each file contributes its top-level
-functions, or an explicit `FUNCTIONS` dict.
+`functions` maps each module to its `files` and its `root` (the project directory).
+`root` is put on `sys.path` so the functions' own imports — sibling modules and
+installed packages — resolve. Each file contributes its top-level functions, or an
+explicit `FUNCTIONS` dict.
 
 ## Development
 

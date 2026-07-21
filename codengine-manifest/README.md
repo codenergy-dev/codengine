@@ -15,19 +15,26 @@ server. Zero runtime dependencies.
     "": { "language": "ts", "functions": "./src/tasks.ts" },
     "images": {
       "language": "py",
-      "functions": ["../shared-py/**/*.py"],
+      "root": "../shared-py",
+      "functions": ["tasks/**/*.py"],
       "python": ".venv/bin/python"
     }
   }
 }
 ```
 
-`modules` maps a namespace to `{ language, functions, python? }`. The empty key
-`""` is the default module (tasks with `module: null`). `functions` is a **glob
-pattern or a list of them** — relative to the manifest dir or absolute — and **may
-point outside the project directory** (e.g. functions from another local repo). A
-module's functions are the union loaded from every matched file; a name defined in
-two files is a conflict (rename one, or split into modules).
+`modules` maps a namespace to `{ language, root?, functions, python? }`. The empty
+key `""` is the default module (tasks with `module: null`).
+
+- **`root`** is the module's project directory — its **dependency environment**.
+  Local dir, relative to the manifest or absolute; may point outside the project.
+  When omitted, it is auto-detected by walking up from the functions to a project
+  marker (`package.json` for ts, `pyproject.toml`/`.venv` for py). The loaders use
+  it to make the functions' own imports resolve (Python: `root` on `sys.path`;
+  Node resolves per file). `python` auto-derives from `<root>/.venv` when omitted.
+- **`functions`** is a **glob pattern or a list of them** — relative to `root` (or
+  the manifest dir) or absolute. A module's functions are the union loaded from
+  every matched file; a name in two files is a conflict.
 
 Schema: [`../codengine-spec/schema/manifest.schema.json`](../codengine-spec/schema/manifest.schema.json).
 

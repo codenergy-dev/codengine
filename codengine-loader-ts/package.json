@@ -1,0 +1,23 @@
+{
+  "name": "codengine-loader-ts",
+  "version": "0.1.0",
+  "description": "Load TS/JS task functions (a module's files) into a function map.",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist/src"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "typescript": "5.9.2"
+  }
+}

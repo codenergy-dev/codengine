@@ -23,6 +23,13 @@ class LoadFunctionsTest(unittest.TestCase):
             )
         self.assertIn("Duplicate task function 'greet'", str(ctx.exception))
 
+    def test_root_enables_sibling_imports(self):
+        # tasks.py does `from helper import VALUE`; it only resolves because `root`
+        # (the module's env) is put on sys.path.
+        env = os.path.join(FIXTURES, "env")
+        functions = load_functions([os.path.join(env, "tasks.py")], env)
+        self.assertEqual(functions["greet"](name="mumbu"), {"message": "mumbu:sibling-ok"})
+
 
 if __name__ == "__main__":
     unittest.main()

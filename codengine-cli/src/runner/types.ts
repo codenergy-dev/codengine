@@ -3,25 +3,22 @@ import type { TaskData, WorkflowIR } from "codengine-runner-ts";
 /** A language a runner can execute. */
 export type Language = "ts" | "py";
 
-/** Module namespace -> the resolved files holding its functions. */
-export type ModuleFiles = Record<string, string[]>;
+/** A module's resolved functions files and its project root (dependency env). */
+export interface ModuleBinding {
+  files: string[];
+  root: string | null;
+}
 
 /**
  * Executes a workflow registry. The runner loads the task functions in its own
- * language — the orchestrator only tells it where they are, per module.
+ * language, per module — the orchestrator only tells it where they are and each
+ * module's environment (`root`).
  */
 export interface Runner {
   run(
     workflows: WorkflowIR[],
     entry: string,
     input: TaskData,
-    modules: ModuleFiles,
+    modules: Record<string, ModuleBinding>,
   ): Promise<TaskData[] | null>;
-}
-
-/** How to run a given language. */
-export interface RunnerProfile {
-  language: Language;
-  /** Python interpreter for `py` (default `python3`); must have codengine-runner installed. */
-  python?: string;
 }

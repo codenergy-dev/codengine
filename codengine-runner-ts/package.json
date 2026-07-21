@@ -6,6 +6,9 @@
   "type": "module",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
+  "bin": {
+    "codengine-run-ts": "dist/src/cli.js"
+  },
   "files": [
     "dist/src"
   ],
@@ -16,6 +19,9 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "tsc && node --test \"dist/test/**/*.test.js\""
+  },
+  "dependencies": {
+    "codengine-loader-ts": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "22.20.1",

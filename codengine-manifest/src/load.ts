@@ -49,7 +49,25 @@ export function findManifest(startDir: string): LoadedManifest | null {
   }
 }
 
-/** Resolve a module (null = the default module "") to concrete, absolute files. */
+const ROOT_MARKERS: Record<Language, string[]> = {
+  ts: ["package.json"],
+  py: ["pyproject.toml", "setup.py", ".venv"],
+};
+
+// Walk up from the functions' location to the nearest project marker.
+function detectRoot(files: string[], language: Language): string | null {
+  if (files.length === 0) return null;
+  const markers = ROOT_MARKERS[language];
+  let dir = dirname(files[0]);
+  for (;;) {
+    if (markers.some((marker) => existsSync(join(dir, marker)))) return dir;
+    const parent = dirname(dir);
+    if (parent === dir) return null;
+    dir = parent;
+  }
+}
+
+/** Resolve a module (null = the default module "") to concrete files + environment. */
 export function resolveModule(loaded: LoadedManifest, moduleName: string | null): ResolvedModule {
   const name = moduleName ?? "";
   const config = loaded.manifest.modules[name];
@@ -57,9 +75,30 @@ export function resolveModule(loaded: LoadedManifest, moduleName: string | null)
     const label = name === "" ? "(default)" : `'${name}'`;
     throw new Error(`Manifest '${loaded.path}' has no module ${label}.`);
   }
+
+  // Functions globs resolve against the explicit root, else the manifest dir.
+  const globBase = config.root ? resolve(loaded.dir, config.root) : loaded.dir;
   const patterns = Array.isArray(config.functions) ? config.functions : [config.functions];
-  const files = resolveFunctionFiles(patterns, loaded.dir);
-  return { name, language: config.language, files, python: config.python };
+  const files = resolveFunctionFiles(patterns, globBase);
+
+  // The environment: explicit root, else auto-detected from the files, else the base.
+  const root = config.root
+    ? resolve(loaded.dir, config.root)
+    : (detectRoot(files, config.language) ?? globBase);
+
+  let python = config.python ? resolve(root, config.python) : undefined;
+  if (!python && config.language === "py") {
+    const candidate = join(root, ".venv", "bin", "python");
+    if (existsSync(candidate)) python = candidate;
+  }
+
+  return {
+    name,
+    language: config.language,
+    root,
+    files,
+    ...(python !== undefined ? { python } : {}),
+  };
 }
 
 function isFunctions(value: unknown): value is string | string[] {
@@ -106,9 +145,13 @@ function validate(value: unknown, path: string): Manifest {
     if (module.python !== undefined && typeof module.python !== "string") {
       fail(`module '${name}' \`python\` must be a string`);
     }
+    if (module.root !== undefined && typeof module.root !== "string") {
+      fail(`module '${name}' \`root\` must be a string`);
+    }
     modules[name] = {
       language: module.language as Language,
       functions: module.functions as string | string[],
+      ...(module.root !== undefined ? { root: module.root as string } : {}),
       ...(module.python !== undefined ? { python: module.python as string } : {}),
     };
   }

@@ -4,9 +4,15 @@ export type Language = "ts" | "py";
 
 export interface ModuleConfig {
   language: Language;
-  /** Glob pattern(s) for the functions source, relative to the manifest dir or absolute. */
+  /**
+   * The module's project root (its dependency environment). Local dir, relative to
+   * the manifest or absolute; may point outside the project. Functions globs resolve
+   * against it. When omitted, it is auto-detected from the functions' location.
+   */
+  root?: string;
+  /** Glob pattern(s) for the functions source, relative to `root` (or the manifest dir). */
   functions: string | string[];
-  /** Python interpreter for `language: "py"`. */
+  /** Python interpreter for `language: "py"`; relative to `root`, or absolute. */
   python?: string;
 }
 
@@ -28,7 +34,10 @@ export interface LoadedManifest {
 export interface ResolvedModule {
   name: string;
   language: Language;
+  /** Absolute project root — the module's dependency environment. */
+  root: string;
   /** Absolute paths to the functions source files (globs expanded). */
   files: string[];
+  /** Absolute Python interpreter for `py` (explicit or `<root>/.venv`), if any. */
   python?: string;
 }
