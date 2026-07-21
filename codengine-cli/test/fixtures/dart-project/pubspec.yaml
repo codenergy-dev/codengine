@@ -1,0 +1,11 @@
+name: greeting_tasks
+publish_to: none
+environment:
+  sdk: ^3.0.0
+dev_dependencies:
+  codengine_runner:
+    path: ../../../../codengine-dart/codengine-runner-dart
+  codengine_loader:
+    path: ../../../../codengine-dart/codengine-loader-dart
+  codengine_generator:
+    path: ../../../../codengine-dart/codengine-generator-dart

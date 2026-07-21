@@ -1,0 +1,7 @@
+name: codengine_runner
+description: Execute the codengine IR (Intermediate Representation) in Dart.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.0.0

@@ -4,7 +4,7 @@ import type { LoadedManifest, Language, Manifest, ModuleConfig, ResolvedModule }
 
 export const MANIFEST_FILENAME = "codengine.json";
 
-const LANGUAGES: readonly Language[] = ["ts", "py"];
+const LANGUAGES: readonly Language[] = ["ts", "py", "dart"];
 
 /**
  * Expand glob patterns (relative to `baseDir`, or absolute) into a sorted, deduped
@@ -52,6 +52,7 @@ export function findManifest(startDir: string): LoadedManifest | null {
 const ROOT_MARKERS: Record<Language, string[]> = {
   ts: ["package.json"],
   py: ["pyproject.toml", "setup.py", ".venv"],
+  dart: ["pubspec.yaml"],
 };
 
 // Walk up from the functions' location to the nearest project marker.

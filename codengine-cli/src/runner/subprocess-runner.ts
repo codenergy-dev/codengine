@@ -17,6 +17,7 @@ export class SubprocessRunner implements Runner {
   constructor(
     private readonly command: string,
     private readonly args: string[],
+    private readonly cwd?: string,
   ) {}
 
   run(
@@ -26,7 +27,10 @@ export class SubprocessRunner implements Runner {
     modules: Record<string, ModuleBinding>,
   ): Promise<TaskData[] | null> {
     return new Promise((resolve, reject) => {
-      const child = spawn(this.command, this.args, { stdio: ["pipe", "pipe", "inherit"] });
+      const child = spawn(this.command, this.args, {
+        cwd: this.cwd,
+        stdio: ["pipe", "pipe", "inherit"],
+      });
       let stdout = "";
       child.stdout.setEncoding("utf8");
       child.stdout.on("data", (chunk) => (stdout += chunk));

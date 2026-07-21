@@ -1,0 +1,10 @@
+name: codengine_analyzer
+description: Analyze Dart task functions into codengine task definitions.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.0.0
+
+dependencies:
+  analyzer: ^7.0.0

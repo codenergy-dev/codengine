@@ -83,10 +83,15 @@ per language: analyzer, generator, loader, runner).
 - **loader** — load the (glue or direct) functions into a callable map.
 - **runner** — execute the IR with the loaded functions.
 
-| Package | Role | Group |
+| Packages | Roles | Group |
 |--------|------|-------|
 | `codengine-runner-ts` / `codengine-loader-ts` / `codengine-analyzer-ts` | run / load / analyze | `codengine-ts/` |
 | `codengine-runner-py` / `codengine-analyzer-py` | run / analyze | `codengine-py/` |
+| `codengine-runner-dart` / `codengine-loader-dart` / `codengine-analyzer-dart` / `codengine-generator-dart` | run / load / analyze / generate | `codengine-dart/` |
+
+Compiled languages (Dart) use all four roles — the **generator** writes glue (with
+named-binding wrappers) that the runner executes, since AOT has no reflection.
+Interpreted languages (TS/Py) load functions dynamically and skip the generator.
 
 Every runner and analyzer MUST pass its `codengine-spec` conformance suite (the
 runner `runs/`, the analyzer `expected.json`). Those suites are how we keep

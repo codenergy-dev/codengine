@@ -1,0 +1,5 @@
+{
+  "version": "1",
+  "workflows": ["*.yuml"],
+  "modules": { "": { "language": "dart", "root": ".", "functions": ["tasks.dart"] } }
+}

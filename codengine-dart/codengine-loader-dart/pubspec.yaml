@@ -1,0 +1,7 @@
+name: codengine_loader
+description: Merge a module's per-file task-function maps, detecting name conflicts.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.0.0

@@ -113,3 +113,16 @@ test("runs a Python module whose function imports a sibling via its root", { ski
   });
   assert.deepStrictEqual(result, [{ message: "root:sibling-ok" }]);
 });
+
+// End-to-end Dart (a compiled language): the user writes plain top-level functions;
+// the analyzer finds them, the generator writes glue with named-binding wrappers, and
+// it runs. Requires the Dart SDK + `dart pub get` in the fixture.
+const dartProject = join(fixtures, "dart-project");
+test("runs a Dart module (analyze -> generate glue -> run)", { skip: !existsSync(join(dartProject, ".dart_tool")) }, async () => {
+  const result = await runWorkflow({
+    manifest: join(dartProject, "codengine.json"),
+    entry: "greet",
+    input: { name: "Dart" },
+  });
+  assert.deepStrictEqual(result, [{ message: "Hello, Dart!" }]);
+});

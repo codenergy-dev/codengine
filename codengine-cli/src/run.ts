@@ -33,18 +33,19 @@ interface Bindings {
   modules: Record<string, ModuleBinding>;
   language: Language;
   python?: string;
+  dartRoot?: string;
 }
 
 /** Load a workflow registry and run it through the language-selected runner. */
 export async function runWorkflow(options: RunWorkflowOptions): Promise<TaskData[] | null> {
   const manifest = findProjectManifest(options);
   const workflows = loadWorkflows(options, manifest);
-  const { modules, language, python } = resolveBindings(options, manifest);
+  const { modules, language, python, dartRoot } = resolveBindings(options, manifest);
   const entry = options.entry ?? soleEntrypoint(workflows);
   const tsSubprocess =
     language === "ts" &&
     Object.values(modules).some((binding) => binding.files.some((f) => extname(f) === ".ts"));
-  const runner = selectRunner({ language, python, tsSubprocess });
+  const runner = selectRunner({ language, python, tsSubprocess, dartRoot });
   return runner.run(workflows, entry, options.input ?? {}, modules);
 }
 
@@ -117,7 +118,17 @@ function resolveBindings(options: RunWorkflowOptions, manifest: LoadedManifest |
 
   const modules: Record<string, ModuleBinding> = {};
   for (const module of resolved) modules[module.name] = { files: module.files, root: module.root };
-  return { modules, language: languages[0], python: options.python ?? interpreters[0] };
+
+  let dartRoot: string | undefined;
+  if (languages[0] === "dart") {
+    const roots = [...new Set(resolved.map((module) => module.root))];
+    if (roots.length > 1) {
+      throw new Error(`Dart modules must share one package root; got: ${roots.join(", ")}.`);
+    }
+    dartRoot = roots[0];
+  }
+
+  return { modules, language: languages[0], python: options.python ?? interpreters[0], dartRoot };
 }
 
 function soleEntrypoint(workflows: WorkflowIR[]): string {

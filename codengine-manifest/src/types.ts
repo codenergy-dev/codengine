@@ -1,6 +1,6 @@
 // Manifest types. Mirror of codengine-spec/schema/manifest.schema.json.
 
-export type Language = "ts" | "py";
+export type Language = "ts" | "py" | "dart";
 
 export interface ModuleConfig {
   language: Language;

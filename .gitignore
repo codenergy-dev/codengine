@@ -10,5 +10,11 @@ __pycache__/
 *.egg-info/
 build/
 
+# Dart
+.dart_tool/
+pubspec.lock
+# Generated glue
+.codengine/
+
 # OS / editor
 .DS_Store
