@@ -1,10 +1,10 @@
 # codengine-runner-ts
 
 Execute the codengine **IR** in TypeScript/Node. This is the reference runner: it
-implements [`codengine-spec/semantics/execution.md`](../codengine-spec/semantics/execution.md)
+implements [`codengine-spec/semantics/execution.md`](../../codengine-spec/semantics/execution.md)
 and passes the spec's conformance runs.
 
-It consumes IR JSON (from [`codengine-parser`](../codengine-parser/) or any parser)
+It consumes IR JSON (from [`codengine-parser`](../../codengine-parser/) or any parser)
 and only needs you to bind the functions your tasks call. Zero runtime
 dependencies.
 
@@ -34,10 +34,10 @@ const result = run(workflows, functions, "fetchUser", { id: 42 });
 overload (`images.resize`, `echo:seed`). If that address is an entrypoint in another
 workflow of the registry, its whole chain runs and the results are mirrored back;
 otherwise the function runs alone. See the
-[spec](../codengine-spec/semantics/execution.md#cross-workflow-calls).
+[spec](../../codengine-spec/semantics/execution.md#cross-workflow-calls).
 
 Inputs use **structured binding** (the
-[invocation contract](../codengine-spec/semantics/execution.md#function-invocation)):
+[invocation contract](../../codengine-spec/semantics/execution.md#function-invocation)):
 the function receives the whole input object and destructures the named keys it
 needs — `({ width, height }) => …`. Unrelated keys are ignored.
 
@@ -66,6 +66,6 @@ pnpm install                              # from the monorepo root
 pnpm -C codengine-runner-ts test          # tsc + conformance runs
 ```
 
-`test` binds the spec's [test-function catalog](../codengine-spec/conformance/README.md)
+`test` binds the spec's [test-function catalog](../../codengine-spec/conformance/README.md)
 and executes every `runs/*.json` fixture, asserting the result deep-equals
 `expectedOutput`. Tests use Node's built-in runner (`node:test`).

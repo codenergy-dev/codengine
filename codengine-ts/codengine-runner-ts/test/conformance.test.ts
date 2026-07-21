@@ -11,8 +11,8 @@ import { run } from "../src/index.js";
 import type { ModuleFunctions, TaskData, TaskFunction, WorkflowIR } from "../src/index.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
-// dist/test -> codengine-runner-ts -> repo root -> codengine-spec
-const casesDir = resolve(here, "..", "..", "..", "codengine-spec", "conformance", "cases");
+// dist/test -> codengine-runner-ts -> codengine-ts -> repo root -> codengine-spec
+const casesDir = resolve(here, "..", "..", "..", "..", "codengine-spec", "conformance", "cases");
 
 // Appends its own name to `trail`, so expectedOutput proves which tasks ran.
 const trail =

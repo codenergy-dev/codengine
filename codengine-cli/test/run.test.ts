@@ -16,7 +16,7 @@ const fixtures = resolve(repo, "codengine-cli", "test", "fixtures");
 
 const tsCatalog = resolve(here, "fixtures", "catalog.js"); // compiled from catalog.ts
 const pyCatalog = join(fixtures, "catalog.py");
-const pyPython = resolve(repo, "codengine-runner-py", ".venv", "bin", "python");
+const pyPython = resolve(repo, "codengine-py", "codengine-runner-py", ".venv", "bin", "python");
 
 const specWorkflow = (name: string) => join(cases, name, "workflows", `${name}.yuml`);
 

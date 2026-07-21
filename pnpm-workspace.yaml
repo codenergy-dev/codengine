@@ -1,5 +1,11 @@
 packages:
-  - 'codengine-*'
+  # Neutral / orchestration packages at the root.
+  - 'codengine-parser'
+  - 'codengine-manifest'
+  - 'codengine-cli'
+  # Per-language package families.
+  - 'codengine-ts/*'
+  - 'codengine-py/*'
 
 # Pin exact versions on install (no ^/~ ranges).
 saveExact: true

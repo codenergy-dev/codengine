@@ -1,8 +1,8 @@
 # codengine-runner-py
 
 Execute the codengine **IR** in Python — the Python counterpart of
-[`codengine-runner-ts`](../codengine-runner-ts/). It implements the same
-[`codengine-spec/semantics/execution.md`](../codengine-spec/semantics/execution.md)
+[`codengine-runner-ts`](../../codengine-ts/codengine-runner-ts/). It implements the same
+[`codengine-spec/semantics/execution.md`](../../codengine-spec/semantics/execution.md)
 and passes the *same* conformance runs, which is how cross-language parity is
 guaranteed.
 
@@ -35,7 +35,7 @@ workflow of the registry, its whole chain runs and the results are mirrored back
 otherwise the function runs alone.
 
 Inputs are bound as **named arguments** (the
-[invocation contract](../codengine-spec/semantics/execution.md#function-invocation)):
+[invocation contract](../../codengine-spec/semantics/execution.md#function-invocation)):
 write the parameters you need — `def resize(width, height)` — and unrelated keys
 are dropped. Use `**kwargs` to receive everything; a missing required parameter
 raises `MissingInputError`.
@@ -54,7 +54,7 @@ diverge and why the shared conformance suite matters:
 ## Subprocess mode (for the orchestrator)
 
 The runner also runs as a process speaking a JSON protocol over stdio, which is
-how [`codengine-cli`](../codengine-cli/) executes Python workflows:
+how [`codengine-cli`](../../codengine-cli/) executes Python workflows:
 
 ```sh
 echo '{"workflows": [...], "entry": "task", "input": {...},
@@ -75,6 +75,6 @@ python3 -m venv .venv
 .venv/bin/python -m unittest discover -s tests -t .
 ```
 
-The tests bind the spec's [test-function catalog](../codengine-spec/conformance/README.md)
+The tests bind the spec's [test-function catalog](../../codengine-spec/conformance/README.md)
 and run every `runs/*.json` fixture, asserting the result equals `expectedOutput`.
 A `venv` isolates the interpreter even though nothing is installed into it.

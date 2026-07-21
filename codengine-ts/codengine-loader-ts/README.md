@@ -1,7 +1,7 @@
 # codengine-loader-ts
 
 Load TS/JS **task functions** (a module's files) into a function map. Shared by
-[`codengine-cli`](../codengine-cli/) (in-process) and the
+[`codengine-cli`](../../codengine-cli/) (in-process) and the
 [`codengine-runner-ts`](../codengine-runner-ts/) subprocess entrypoint. Zero
 runtime dependencies.
 

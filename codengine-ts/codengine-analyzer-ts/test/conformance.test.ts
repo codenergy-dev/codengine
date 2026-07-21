@@ -10,8 +10,8 @@ import { dirname, join, resolve } from "node:path";
 import { analyzeSource } from "../src/index.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
-// dist/test -> codengine-analyzer-ts -> repo root -> codengine-spec
-const casesDir = resolve(here, "..", "..", "..", "codengine-spec", "conformance", "analyzer");
+// dist/test -> codengine-analyzer-ts -> codengine-ts -> repo root -> codengine-spec
+const casesDir = resolve(here, "..", "..", "..", "..", "codengine-spec", "conformance", "analyzer");
 
 const cases = readdirSync(casesDir, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())

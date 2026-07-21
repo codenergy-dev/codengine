@@ -2,7 +2,7 @@
 
 Analyze TypeScript task functions into codengine **task definitions** — the neutral
 description of each function's signature (named params: kind, required, nullable,
-default) that tooling like [`codengine-vscode`](../codengine-vscode/) uses for
+default) that tooling like [`codengine-vscode`](../../codengine-vscode/) uses for
 autocomplete, intellisense, and validation.
 
 Uses the **TypeScript Compiler API** (never regex): the type checker reads the code
@@ -39,7 +39,7 @@ for defaults:
   (`{ a, ...rest }`) → `acceptsExtra: true`.
 
 The result deep-equals the language-neutral `expected.json` in the
-[analyzer conformance](../codengine-spec/conformance/analyzer/) — the same file
+[analyzer conformance](../../codengine-spec/conformance/analyzer/) — the same file
 `codengine-analyzer-py` matches, which is the parity guarantee.
 
 ## Development

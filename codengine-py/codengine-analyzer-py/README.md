@@ -2,7 +2,7 @@
 
 Analyze Python task functions into codengine **task definitions** — the neutral
 description of each function's signature (named params: kind, required, nullable,
-default) that tooling like [`codengine-vscode`](../codengine-vscode/) uses for
+default) that tooling like [`codengine-vscode`](../../codengine-vscode/) uses for
 autocomplete, intellisense, and validation.
 
 Uses the standard-library `ast` (never regex), so it reads Python the way Python
@@ -29,8 +29,8 @@ uses to analyze Python modules out-of-process (mirroring the runner protocol).
 ## What it produces
 
 Per top-level function, per the
-[task-definition schema](../codengine-spec/schema/task-definition.schema.json) and
-the [analyzer conformance](../codengine-spec/conformance/analyzer/):
+[task-definition schema](../../codengine-spec/schema/task-definition.schema.json) and
+the [analyzer conformance](../../codengine-spec/conformance/analyzer/):
 
 - `params` — each declared parameter's neutral `kind`
   (`int`/`float` → `number`, `str` → `string`, …), whether it is `required`
@@ -46,6 +46,6 @@ python3 -m venv .venv
 .venv/bin/python -m unittest discover -s tests -t .
 ```
 
-The tests run the shared [analyzer conformance](../codengine-spec/conformance/analyzer/):
+The tests run the shared [analyzer conformance](../../codengine-spec/conformance/analyzer/):
 `analyze(source.py).definitions` must deep-equal the language-neutral
 `expected.json` — the same file `codengine-analyzer-ts` will match, proving parity.

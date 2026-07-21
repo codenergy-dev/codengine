@@ -11,8 +11,8 @@ import unittest
 from codengine_runner import run
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-# tests -> codengine-runner-py -> repo root -> codengine-spec
-REPO = os.path.dirname(os.path.dirname(HERE))
+# tests -> codengine-runner-py -> codengine-py -> repo root -> codengine-spec
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 CASES = os.path.join(REPO, "codengine-spec", "conformance", "cases")
 
 

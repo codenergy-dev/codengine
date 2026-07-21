@@ -83,4 +83,4 @@ pnpm -C codengine-cli test        # e2e: same workflow through ts and py runners
 ```
 
 The Python leg of the test requires `codengine-runner` installed in a venv (see
-[`codengine-runner-py`](../codengine-runner-py/)); it is skipped if absent.
+[`codengine-runner-py`](../codengine-py/codengine-runner-py/)); it is skipped if absent.

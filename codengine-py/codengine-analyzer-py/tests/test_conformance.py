@@ -9,8 +9,8 @@ import unittest
 from codengine_analyzer import analyze_source
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-# tests -> codengine-analyzer-py -> repo root -> codengine-spec
-REPO = os.path.dirname(os.path.dirname(HERE))
+# tests -> codengine-analyzer-py -> codengine-py -> repo root -> codengine-spec
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 CASES = os.path.join(REPO, "codengine-spec", "conformance", "analyzer")
 
 

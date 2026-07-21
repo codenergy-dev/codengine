@@ -58,22 +58,35 @@ Representation)**: the parsed workflow graph, serialized as JSON.
 
 ## Modules
 
-Each module is a top-level directory prefixed `codengine-`. Planned layout
-(built in this order):
+Every module is a directory prefixed `codengine-`. **Neutral / orchestration**
+packages live at the repo root; each language's **runtime family** lives grouped
+under a `codengine-<lang>/` directory (they are still separate, independently
+publishable packages — the grouping is only for navigation, since the family grows
+per language: analyzer, generator, loader, runner).
+
+**Root — neutral / orchestration:**
 
 | Module | Role | Language |
 |--------|------|----------|
-| `codengine-spec` | IR + task-definition schemas, execution & invocation semantics, conformance suites. No runtime code — the source of truth. | Language-neutral (JSON + Markdown) |
+| `codengine-spec` | IR + task-definition + manifest schemas, execution & invocation semantics, conformance suites. No runtime code — the source of truth. | Language-neutral (JSON + Markdown) |
 | `codengine-parser` | Diagram syntax → IR (includes the planner). Library + CLI. | TypeScript |
-| `codengine-runner-ts` | Executes the IR. Library, reused in-process by the extension. | TypeScript |
-| `codengine-runner-py` | Executes the IR, idiomatic Python (inherits yumlabs image pipelines). | Python |
-| `codengine-analyzer-ts` | Source → task definitions (TS Compiler API). Library + subprocess. | TypeScript |
-| `codengine-analyzer-py` | Source → task definitions (`ast`). Library + subprocess. | Python |
-| `codengine-loader-ts` | Load TS/JS task functions (a module's files) into a function map. Library. | TypeScript |
-| `codengine-manifest` | Load/validate/resolve the project manifest (`codengine.json`, incl. module `root`/environment). Library. | TypeScript |
-| `codengine-cli` | Standalone orchestrator: parse + pick runner(s) + run. | TypeScript |
-| `codengine-language-server` | Editing-time assembly: parser + analyzers + manifest → LSP features. Multi-project. | TypeScript |
-| `codengine-vscode` | Thin LSP client for the language server. | TypeScript |
+| `codengine-manifest` | Load/validate/resolve the manifest (`codengine.json`, incl. module `root`/environment). Library. | TypeScript |
+| `codengine-cli` | Standalone orchestrator: parse + resolve + run through a language runner. | TypeScript |
+| `codengine-language-server` | Editing-time assembly: parser + analyzers + manifest → LSP features. Multi-project. *(planned)* | TypeScript |
+| `codengine-vscode` | Thin LSP client for the language server. *(planned)* | TypeScript |
+
+**Per-language family (`codengine-<lang>/…`):** each language provides some of —
+
+- **analyzer** — source → task definitions (function signatures) via native tooling.
+- **generator** — task definitions → generated glue code (mandatory for compiled
+  languages; optional for interpreted). *(planned)*
+- **loader** — load the (glue or direct) functions into a callable map.
+- **runner** — execute the IR with the loaded functions.
+
+| Package | Role | Group |
+|--------|------|-------|
+| `codengine-runner-ts` / `codengine-loader-ts` / `codengine-analyzer-ts` | run / load / analyze | `codengine-ts/` |
+| `codengine-runner-py` / `codengine-analyzer-py` | run / analyze | `codengine-py/` |
 
 Every runner and analyzer MUST pass its `codengine-spec` conformance suite (the
 runner `runs/`, the analyzer `expected.json`). Those suites are how we keep
