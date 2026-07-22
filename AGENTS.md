@@ -88,10 +88,15 @@ per language: analyzer, generator, loader, runner).
 | `codengine-runner-ts` / `codengine-loader-ts` / `codengine-analyzer-ts` | run / load / analyze | `codengine-ts/` |
 | `codengine-runner-py` / `codengine-analyzer-py` | run / analyze | `codengine-py/` |
 | `codengine-runner-dart` / `codengine-loader-dart` / `codengine-analyzer-dart` / `codengine-generator-dart` | run / load / analyze / generate | `codengine-dart/` |
+| `codengine-runner-cs` / `codengine-analyzer-cs` | run (+ reflection load) / analyze | `codengine-cs/` |
 
-Compiled languages (Dart) use all four roles — the **generator** writes glue (with
-named-binding wrappers) that the runner executes, since AOT has no reflection.
-Interpreted languages (TS/Py) load functions dynamically and skip the generator.
+The **generator** is about *reflection, not compilation*. Dart (AOT, no reflection)
+needs all four roles — the generator writes glue with named-binding wrappers that the
+runner executes. C# is compiled too but has full runtime reflection, so it needs **no
+generator**: the loader binds named params at runtime (folded into the runner, like
+Python), giving the two-package shape. Interpreted languages (TS/Py) likewise skip the
+generator. A C# module's project needs **no reference to codengine** — the runner
+builds it and loads the output assembly by reflection.
 
 Every runner and analyzer MUST pass its `codengine-spec` conformance suite (the
 runner `runs/`, the analyzer `expected.json`). Those suites are how we keep
@@ -135,5 +140,18 @@ It is documented now and applied when the first TS module is scaffolded.
   with zero runtime dependencies — keep runtime deps at or near zero.
 - **Review + audit.** New/updated dependencies get reviewed in the PR; CI runs
   `pnpm audit`. Prefer packages that publish provenance/signatures.
+
+## NuGet security policy (C#/.NET)
+
+The same supply-chain discipline applies to .NET modules, using NuGet's levers:
+
+- **Minimize dependencies.** Prefer the BCL. `codengine-runner-cs` has **zero** NuGet
+  dependencies (it runs offline); `codengine-analyzer-cs` has exactly one
+  (`Microsoft.CodeAnalysis.CSharp`, for Roslyn).
+- **Pin + lock.** Pin exact versions in the `.csproj` and commit a
+  `packages.lock.json` (`RestorePackagesWithLockFile=true`). CI restores with
+  `--locked-mode` (the `npm ci` equivalent) — never a mutating restore.
+- **Prefer first-party / signed packages.** Roslyn is published by Microsoft; prefer
+  packages that ship signed and with source. Review new/updated deps in the PR.
 ```
 

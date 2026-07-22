@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The IR engine + reflection loader + subprocess entrypoint. BCL only (no NuGet
+       dependencies), so it restores and runs offline. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Codengine.Runner</RootNamespace>
+    <AssemblyName>codengine-runner-cs</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Compile only this directory's sources; tests/ is a separate project. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="*.cs" />
+  </ItemGroup>
+
+</Project>

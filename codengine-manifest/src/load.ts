@@ -4,7 +4,7 @@ import type { LoadedManifest, Language, Manifest, ModuleConfig, ResolvedModule }
 
 export const MANIFEST_FILENAME = "codengine.json";
 
-const LANGUAGES: readonly Language[] = ["ts", "py", "dart"];
+const LANGUAGES: readonly Language[] = ["ts", "py", "dart", "cs"];
 
 /**
  * Expand glob patterns (relative to `baseDir`, or absolute) into a sorted, deduped
@@ -53,7 +53,15 @@ const ROOT_MARKERS: Record<Language, string[]> = {
   ts: ["package.json"],
   py: ["pyproject.toml", "setup.py", ".venv"],
   dart: ["pubspec.yaml"],
+  cs: ["*.csproj"], // the module's .NET project (its dependency environment)
 };
+
+// A marker matches a directory by exact filename, or by glob when it contains `*`.
+function hasMarker(dir: string, marker: string): boolean {
+  return marker.includes("*")
+    ? globSync(marker, { cwd: dir }).length > 0
+    : existsSync(join(dir, marker));
+}
 
 // Walk up from the functions' location to the nearest project marker.
 function detectRoot(files: string[], language: Language): string | null {
@@ -61,7 +69,7 @@ function detectRoot(files: string[], language: Language): string | null {
   const markers = ROOT_MARKERS[language];
   let dir = dirname(files[0]);
   for (;;) {
-    if (markers.some((marker) => existsSync(join(dir, marker)))) return dir;
+    if (markers.some((marker) => hasMarker(dir, marker))) return dir;
     const parent = dirname(dir);
     if (parent === dir) return null;
     dir = parent;

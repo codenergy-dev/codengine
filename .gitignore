@@ -16,5 +16,9 @@ pubspec.lock
 # Generated glue
 .codengine/
 
+# C# / .NET (build output; packages.lock.json is committed)
+bin/
+obj/
+
 # OS / editor
 .DS_Store

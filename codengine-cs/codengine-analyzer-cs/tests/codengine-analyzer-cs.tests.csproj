@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Analyzer conformance: a plain console app (no test framework) that asserts the
+       task definitions deep-equal the shared expected.json, the same files
+       analyzer-ts / -py / -dart match. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Conformance.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\codengine-analyzer-cs.csproj" />
+  </ItemGroup>
+
+</Project>

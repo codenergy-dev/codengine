@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Source -> task definitions via Roslyn. One pinned NuGet dependency; a committed
+       packages.lock.json + locked-mode restore keep the supply chain reproducible
+       (the NuGet analogue of the pnpm policy). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Codengine.Analyzer</RootNamespace>
+    <AssemblyName>codengine-analyzer-cs</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+  </ItemGroup>
+
+</Project>

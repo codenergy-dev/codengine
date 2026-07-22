@@ -126,3 +126,20 @@ test("runs a Dart module (analyze -> generate glue -> run)", { skip: !existsSync
   });
   assert.deepStrictEqual(result, [{ message: "Hello, Dart!" }]);
 });
+
+// End-to-end C# (a compiled language *with* reflection): the user writes plain public
+// static methods and their .csproj has NO codengine reference. The runner builds the
+// project, loads the assembly, and binds parameters by reflection — no generator.
+// Requires the .NET SDK and the built runner-cs assembly.
+const csRunnerDll = ["Release", "Debug"]
+  .map((config) => resolve(repo, "codengine-cs", "codengine-runner-cs", "bin", config, "net10.0", "codengine-runner-cs.dll"))
+  .find((dll) => existsSync(dll));
+test("runs a C# module (build project -> reflect assembly -> run)", { skip: !csRunnerDll }, async () => {
+  if (csRunnerDll) process.env.CODENGINE_RUNNER_CS_DLL = csRunnerDll;
+  const result = await runWorkflow({
+    manifest: join(fixtures, "cs-project", "codengine.json"),
+    entry: "greet",
+    input: { name: "CSharp" },
+  });
+  assert.deepStrictEqual(result, [{ message: "Hello, CSharp!" }]);
+});

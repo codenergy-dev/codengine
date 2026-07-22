@@ -1,7 +1,7 @@
 import type { TaskData, WorkflowIR } from "codengine-runner-ts";
 
 /** A language a runner can execute. */
-export type Language = "ts" | "py" | "dart";
+export type Language = "ts" | "py" | "dart" | "cs";
 
 /** A module's resolved functions files and its project root (dependency env). */
 export interface ModuleBinding {
