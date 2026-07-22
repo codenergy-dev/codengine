@@ -6,6 +6,7 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Codengine.Analyzer;
+using Codengine.Core;
 
 static string SourceDir([CallerFilePath] string path = "") => Path.GetDirectoryName(path)!;
 
@@ -20,7 +21,7 @@ foreach (var caseDir in Directory.GetDirectories(analyzerDir).OrderBy(d => d))
     if (!File.Exists(sourcePath)) continue; // no C# fixture (e.g. catch-all): skip
 
     string label = Path.GetFileName(caseDir);
-    var actual = Analyze.AnalyzeSource(sourcePath)["definitions"]!.ToJsonString();
+    string actual = TaskDefinitions.SerializeDefinitions(Analyze.AnalyzeSource(sourcePath));
     string expected = File.ReadAllText(Path.Combine(caseDir, "expected.json"));
 
     using var actualDocument = JsonDocument.Parse(actual);

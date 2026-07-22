@@ -1,6 +1,6 @@
 import { loadFunctions } from "codengine-loader-ts";
 import { run as executeTs } from "codengine-runner-ts";
-import type { ModuleFunctions, TaskData, WorkflowIR } from "codengine-runner-ts";
+import type { ModuleFunctions, TaskData, WorkflowIR } from "codengine-core-ts";
 import type { ModuleBinding, Runner } from "./types.js";
 
 /** Runs TypeScript/JS workflows in-process (used for pre-built `.js`/`.mjs`). */

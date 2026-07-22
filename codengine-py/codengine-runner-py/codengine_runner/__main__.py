@@ -13,7 +13,8 @@ subprocess — the generalization of the pypeyuml venv/JSON pattern.
 import json
 import sys
 
-from .functions import load_functions
+from codengine_loader import load_functions
+
 from .runtime import run
 
 

@@ -3,13 +3,15 @@
 The C# language family for codengine — a **compiled** language *with* full runtime
 reflection. Dart forced a **generator** into existence only because its AOT runtime
 has no reflection; the default .NET runtime does, so C# needs **no generator**. The
-loader binds named parameters at runtime (like Python's `inspect`), which means C#
-takes the two-package shape of Python, not the four-package shape of Dart.
+loader binds named parameters at runtime (like Python's `inspect`). C# therefore has
+the four mandatory roles and no generator.
 
 | Package | Role |
 |---|---|
+| [`codengine-core-cs`](codengine-core-cs/) | the contract: IR types, JSON normalization, `TaskFunction`, task-definition types. BCL only. |
 | [`codengine-analyzer-cs`](codengine-analyzer-cs/) | source → task definitions (via Roslyn / `Microsoft.CodeAnalysis`). |
-| [`codengine-runner-cs`](codengine-runner-cs/) | the IR engine (a port of the runtime) + the reflection **loader** + the subprocess entrypoint. BCL only — no NuGet dependencies. |
+| [`codengine-loader-cs`](codengine-loader-cs/) | build the module's project + reflect the assembly into a bound-function map. |
+| [`codengine-runner-cs`](codengine-runner-cs/) | the IR engine (a port of the runtime) + the subprocess entrypoint. BCL only — no NuGet dependencies. |
 
 ## How a C# run works
 

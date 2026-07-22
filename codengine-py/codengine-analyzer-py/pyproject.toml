@@ -9,7 +9,7 @@ description = "Analyze Python task functions into codengine task definitions."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-dependencies = []
+dependencies = ["codengine-core"]
 
 [tool.setuptools.packages.find]
 include = ["codengine_analyzer*"]

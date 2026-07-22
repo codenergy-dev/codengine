@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Load a C# module's task functions by reflection (build the module's project +
+       reflect the output assembly). BCL only; depends on core for the contract types. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Codengine.Loader</RootNamespace>
+    <AssemblyName>codengine-loader-cs</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../codengine-core-cs/codengine-core-cs.csproj" />
+  </ItemGroup>
+
+</Project>

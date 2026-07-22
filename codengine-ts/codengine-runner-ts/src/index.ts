@@ -1,3 +1,10 @@
-export type { Route, Task, WorkflowIR } from "./types.js";
-export type { TaskData, TaskFunction, FunctionMap, ModuleFunctions } from "./runtime.js";
+export type {
+  Route,
+  Task,
+  WorkflowIR,
+  TaskData,
+  TaskFunction,
+  FunctionMap,
+  ModuleFunctions,
+} from "codengine-core-ts";
 export { run } from "./runtime.js";

@@ -4,6 +4,7 @@
 // The function names and parameters come from the analyzer (never regex).
 
 import 'package:codengine_analyzer/codengine_analyzer.dart';
+import 'package:codengine_core/codengine_core.dart';
 import 'package:path/path.dart' as p;
 
 /// Build the glue source for `modules` (`{module: {files, root}}`), to be written
@@ -28,7 +29,7 @@ String generateGlue(Map<String, dynamic> modules, String glueDir) {
         imports.writeln("import ${_str(p.relative(file, from: glueDir))} as $name;");
         return name;
       });
-      final definitions = (analyzeSource(file)['definitions'] as List).cast<Map>();
+      final definitions = (analyzeSource(file)['definitions'] as List).cast<TaskDefinition>();
       final wrappers = definitions
           .map((def) => "        '${def['name']}': ${_wrapper(alias, def)},")
           .join('\n');

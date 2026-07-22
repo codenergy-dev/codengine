@@ -3,7 +3,7 @@
 // TypeScript does.
 
 import ts from "typescript";
-import type { Kind, Param, TaskDefinition, TaskDefinitions } from "./types.js";
+import type { Kind, Param, TaskDefinition, TaskDefinitions } from "codengine-core-ts";
 
 export function analyzeSource(filePath: string): TaskDefinitions {
   const program = ts.createProgram([filePath], {

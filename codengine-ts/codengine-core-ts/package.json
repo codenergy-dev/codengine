@@ -1,0 +1,23 @@
+{
+  "name": "codengine-core-ts",
+  "version": "0.1.0",
+  "description": "The codengine contract for TS/JS: IR types, execution types, and task-definition types. The code-level mirror of codengine-spec.",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist/src"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "typescript": "5.9.2"
+  }
+}

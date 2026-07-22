@@ -16,6 +16,9 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "codengine-core-ts": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "22.20.1",
     "typescript": "5.9.2"

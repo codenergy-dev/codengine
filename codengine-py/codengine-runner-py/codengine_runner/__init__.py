@@ -1,11 +1,11 @@
 """codengine-runner-py: execute the codengine IR in Python."""
 
-from .functions import load_functions
-from .runtime import FunctionMap, MissingInputError, TaskData, TaskFunction, run
+from codengine_core import FunctionMap, MissingInputError, TaskData, TaskFunction
+
+from .runtime import run
 
 __all__ = [
     "run",
-    "load_functions",
     "MissingInputError",
     "TaskData",
     "TaskFunction",

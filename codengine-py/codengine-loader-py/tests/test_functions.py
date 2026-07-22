@@ -3,7 +3,7 @@
 import os
 import unittest
 
-from codengine_runner import load_functions
+from codengine_loader import load_functions
 
 FIXTURES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 

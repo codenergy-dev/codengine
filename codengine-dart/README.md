@@ -6,6 +6,7 @@ writes **plain top-level functions** and only lists them in `codengine.json`.
 
 | Package | Role |
 |---|---|
+| [`codengine-core-dart`](codengine-core-dart/) | the contract: the execution typedefs (`TaskData`/`TaskFunction`/`ModuleFunctions`) and the description typedefs. |
 | [`codengine-analyzer-dart`](codengine-analyzer-dart/) | source → task definitions (via the `analyzer` package). |
 | [`codengine-generator-dart`](codengine-generator-dart/) | task definitions → generated **glue**: `(Map input) => fn(name: input['name'])` wrappers (named binding, no reflection, extras dropped). Also the subprocess entrypoint (`dart run codengine_generator:run`) that generates, runs, and relays. |
 | [`codengine-loader-dart`](codengine-loader-dart/) | merge a module's per-file function maps, detecting name conflicts (called by the glue). |

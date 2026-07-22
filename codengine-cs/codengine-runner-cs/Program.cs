@@ -9,6 +9,8 @@
 // protocol JSON ever reaches our stdout.
 
 using System.Text.Json;
+using Codengine.Core;
+using Codengine.Loader;
 using Codengine.Runner;
 
 using TaskData = System.Collections.Generic.Dictionary<string, object?>;

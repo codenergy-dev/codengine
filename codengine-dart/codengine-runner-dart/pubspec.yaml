@@ -5,3 +5,7 @@ publish_to: none
 
 environment:
   sdk: ^3.0.0
+
+dependencies:
+  codengine_core:
+    path: ../codengine-core-dart

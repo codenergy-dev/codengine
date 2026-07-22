@@ -3,15 +3,7 @@
 // codengine-runner-ts / codengine-runner-py. The runner is "dumb": it trusts the
 // precomputed executionPlan and only resolves functions and applies the rules.
 
-/// A single input/output object flowing between tasks.
-typedef TaskData = Map<String, dynamic>;
-
-/// A task function. The engine calls it structurally with one map; named-argument
-/// binding for Dart source is done by the generated glue, not here.
-typedef TaskFunction = dynamic Function(TaskData input);
-
-/// Functions bound per module namespace; `""` is the default module.
-typedef ModuleFunctions = Map<String, Map<String, TaskFunction>>;
+import 'package:codengine_core/codengine_core.dart';
 
 int _euclideanIndex(int n, int length) => ((n % length) + length) % length;
 

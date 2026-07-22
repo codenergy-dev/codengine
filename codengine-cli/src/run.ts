@@ -9,7 +9,7 @@ import {
 } from "codengine-manifest";
 import type { LoadedManifest } from "codengine-manifest";
 import { parseWorkflow } from "codengine-parser";
-import type { TaskData, WorkflowIR } from "codengine-runner-ts";
+import type { TaskData, WorkflowIR } from "codengine-core-ts";
 import { selectRunner } from "./runner/select.js";
 import type { Language, ModuleBinding } from "./runner/types.js";
 

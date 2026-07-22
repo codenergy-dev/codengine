@@ -14,9 +14,11 @@
 
   <ItemGroup>
     <Compile Include="..\Engine.cs" />
-    <Compile Include="..\Ir.cs" />
-    <Compile Include="..\JsonValue.cs" />
     <Compile Include="Conformance.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../codengine-core-cs/codengine-core-cs.csproj" />
   </ItemGroup>
 
 </Project>

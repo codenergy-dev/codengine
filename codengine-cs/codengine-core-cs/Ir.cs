@@ -1,12 +1,10 @@
 // The IR (Intermediate Representation) as C# records, deserialized from the JSON
-// contract in codengine-spec. The runner is "dumb": it trusts the precomputed
-// executionPlan and only applies the runtime rules — so these mirror the schema
-// fields the engine reads, nothing more.
+// contract in codengine-spec. These mirror the schema fields a runner reads.
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Codengine.Runner;
+namespace Codengine.Core;
 
 public sealed record RouteIR(string Label, string Target);
 

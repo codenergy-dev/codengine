@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import type { TaskData, WorkflowIR } from "codengine-runner-ts";
+import type { TaskData, WorkflowIR } from "codengine-core-ts";
 import type { ModuleBinding, Runner } from "./types.js";
 
 interface Response {

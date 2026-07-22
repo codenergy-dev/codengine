@@ -7,7 +7,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Codengine.Runner;
+namespace Codengine.Core;
 
 /// <summary>Reads any JSON token into a plain CLR value (never a JsonElement).</summary>
 public sealed class JsonValueConverter : JsonConverter<object?>

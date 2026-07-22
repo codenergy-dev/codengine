@@ -22,4 +22,8 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../codengine-core-cs/codengine-core-cs.csproj" />
+  </ItemGroup>
+
 </Project>

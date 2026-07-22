@@ -9,4 +9,6 @@ environment:
 dependencies:
   codengine_analyzer:
     path: ../codengine-analyzer-dart
+  codengine_core:
+    path: ../codengine-core-dart
   path: ^1.9.0

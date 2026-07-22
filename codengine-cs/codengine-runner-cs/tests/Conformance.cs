@@ -6,6 +6,7 @@
 
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using Codengine.Core;
 using Codengine.Runner;
 
 using TaskData = System.Collections.Generic.Dictionary<string, object?>;

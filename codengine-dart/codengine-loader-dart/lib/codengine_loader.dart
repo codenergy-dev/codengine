@@ -1,7 +1,7 @@
 /// Merge a module's per-file task-function maps into one, detecting name conflicts.
 library;
 
-typedef TaskFunction = dynamic Function(Map<String, dynamic> input);
+import 'package:codengine_core/codengine_core.dart';
 
 /// Merge `(filePath, functions)` entries. A name defined in two files is a conflict
 /// (rename one, or split them into separate modules). Called by the generated glue.

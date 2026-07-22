@@ -1,15 +1,13 @@
 # codengine-runner-cs
 
-The C# **engine + loader + subprocess entrypoint**. BCL only — no NuGet
-dependencies, so it restores and runs offline.
+The C# **engine + subprocess entrypoint**. BCL only — no NuGet dependencies, so it
+restores and runs offline. It ProjectReferences [`codengine-core-cs`](../codengine-core-cs/)
+(the contract) and [`codengine-loader-cs`](../codengine-loader-cs/) (reflection loading).
 
 - `Engine.cs` — executes the IR (`codengine-spec/semantics/execution.md`), a faithful
   port of `runtime.py` / `codengine-runner-ts`. Classifies a function result by type,
-  never truthiness. A `TaskFunction` is a `Func<TaskData, object?>`; named binding is
-  the loader's job.
-- `Loader.cs` — builds the module's project and reflects its assembly into bound
-  functions (the invocation contract at runtime). See the
-  [family README](../README.md) for the build → load → reflect flow.
+  never truthiness. A `TaskFunction` (from core) is a `Func<TaskData, object?>`; named
+  binding is the loader's job.
 - `Program.cs` — the subprocess entrypoint the orchestrator spawns
   (`dotnet codengine-runner-cs.dll`): reads
   `{ workflows, entry, input, functions: { <module>: { files, root } } }` from stdin,

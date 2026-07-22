@@ -81,7 +81,7 @@ separately, so only the protocol JSON reaches the runner's stdout. Language toke
 
 ## Outcome / notes
 
-- **Five languages now pass the same conformance.** C# joined engine parity (16 runs)
+- **Four languages (TS, Python, Dart, C#) now pass the same conformance.** C# joined engine parity (16 runs)
   and descriptor parity (2 analyzer cases). The north star held *more strongly* than
   Dart: the C# user writes ordinary `public static` methods, lists them, and their
   `.csproj` has **zero codengine reference** — reflection loads the compiled assembly

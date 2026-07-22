@@ -62,7 +62,7 @@ Every module is a directory prefixed `codengine-`. **Neutral / orchestration**
 packages live at the repo root; each language's **runtime family** lives grouped
 under a `codengine-<lang>/` directory (they are still separate, independently
 publishable packages — the grouping is only for navigation, since the family grows
-per language: analyzer, generator, loader, runner).
+per language: core, analyzer, loader, runner, and optionally generator).
 
 **Root — neutral / orchestration:**
 
@@ -75,28 +75,49 @@ per language: analyzer, generator, loader, runner).
 | `codengine-language-server` | Editing-time assembly: parser + analyzers + manifest → LSP features. Multi-project. *(planned)* | TypeScript |
 | `codengine-vscode` | Thin LSP client for the language server. *(planned)* | TypeScript |
 
-**Per-language family (`codengine-<lang>/…`):** each language provides some of —
+**Per-language family (`codengine-<lang>/…`):** the roles are a fixed invariant.
+**Four are mandatory** (`core`, `analyzer`, `loader`, `runner`); **`generator` is
+optional** (only a target runtime without reflection needs it).
 
+- **core** — the contract, in that language's types: the **execution contract** (IR
+  types, `TaskData`, `TaskFunction`, JSON handling, the missing-input error) and the
+  **description contract** (task-definition types). The code-level mirror of
+  `codengine-spec`. No logic, no I/O.
 - **analyzer** — source → task definitions (function signatures) via native tooling.
-- **generator** — task definitions → generated glue code (mandatory for compiled
-  languages; optional for interpreted). *(planned)*
+  *Produces* the description contract.
 - **loader** — load the (glue or direct) functions into a callable map.
 - **runner** — execute the IR with the loaded functions.
+- **generator** — task definitions → generated glue code. *Consumes* the description
+  contract. Mandatory only for a reflection-less compiled target (Dart AOT); an
+  interpreted or reflective runtime skips it.
+
+Dependencies point **inward** to `core` (a shared kernel), never runner↔loader:
+
+```
+core  ←  analyzer      (produces the description)
+core  ←  loader
+core  ←  runner        (may also use loader)
+core  ←  generator     (consumes the description; optional)
+```
 
 | Packages | Roles | Group |
 |--------|------|-------|
-| `codengine-runner-ts` / `codengine-loader-ts` / `codengine-analyzer-ts` | run / load / analyze | `codengine-ts/` |
-| `codengine-runner-py` / `codengine-analyzer-py` | run / analyze | `codengine-py/` |
-| `codengine-runner-dart` / `codengine-loader-dart` / `codengine-analyzer-dart` / `codengine-generator-dart` | run / load / analyze / generate | `codengine-dart/` |
-| `codengine-runner-cs` / `codengine-analyzer-cs` | run (+ reflection load) / analyze | `codengine-cs/` |
+| `codengine-core-ts` / `codengine-analyzer-ts` / `codengine-loader-ts` / `codengine-runner-ts` | core / analyze / load / run | `codengine-ts/` |
+| `codengine-core-py` / `codengine-analyzer-py` / `codengine-loader-py` / `codengine-runner-py` | core / analyze / load / run | `codengine-py/` |
+| `codengine-core-dart` / `codengine-analyzer-dart` / `codengine-loader-dart` / `codengine-runner-dart` / `codengine-generator-dart` | core / analyze / load / run / generate | `codengine-dart/` |
+| `codengine-core-cs` / `codengine-analyzer-cs` / `codengine-loader-cs` / `codengine-runner-cs` | core / analyze / load / run | `codengine-cs/` |
 
 The **generator** is about *reflection, not compilation*. Dart (AOT, no reflection)
-needs all four roles — the generator writes glue with named-binding wrappers that the
-runner executes. C# is compiled too but has full runtime reflection, so it needs **no
-generator**: the loader binds named params at runtime (folded into the runner, like
-Python), giving the two-package shape. Interpreted languages (TS/Py) likewise skip the
-generator. A C# module's project needs **no reference to codengine** — the runner
-builds it and loads the output assembly by reflection.
+is the only family with all five roles — its generator writes glue with named-binding
+wrappers that the runner executes. C# is compiled too but has full runtime reflection,
+so it needs **no generator**: `loader-cs` binds named params at runtime. Interpreted
+languages (TS/Py) likewise skip it. A C# module's project needs **no reference to
+codengine** — the runner builds it and loads the output assembly by reflection.
+
+`core` weight is asymmetric by design: statically-typed families (TS, C#) carry real
+IR + task-definition types (and, for C#, JSON normalization); dict/`Map`-based
+families (Python, Dart) carry mostly type aliases + the description shape. The *rule*
+is uniform even when the *volume* is not.
 
 Every runner and analyzer MUST pass its `codengine-spec` conformance suite (the
 runner `runs/`, the analyzer `expected.json`). Those suites are how we keep

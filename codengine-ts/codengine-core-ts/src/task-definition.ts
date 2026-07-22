@@ -1,4 +1,5 @@
-// Task-definition types. Mirror of codengine-spec/schema/task-definition.schema.json.
+// The description contract: the task-definition types an analyzer produces and a
+// generator consumes. Mirror of codengine-spec/schema/task-definition.schema.json.
 
 export type Kind = "number" | "boolean" | "string" | "array" | "object" | "any";
 

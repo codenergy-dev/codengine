@@ -1,6 +1,5 @@
 // IR v1 types. Mirror of codengine-spec/schema/workflow.schema.json.
-// Defined here (not imported from codengine-parser) so the runner depends only on
-// the spec/IR, never on the parser.
+// The contract between the parser (produces) and the runner (executes).
 
 export interface Route {
   label: string;

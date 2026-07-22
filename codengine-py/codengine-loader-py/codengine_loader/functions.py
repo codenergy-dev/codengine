@@ -6,7 +6,7 @@ import inspect
 import sys
 from typing import Optional, Union
 
-from .runtime import FunctionMap
+from codengine_core import FunctionMap
 
 
 def load_functions(paths: Union[str, list[str]], root: Optional[str] = None) -> FunctionMap:

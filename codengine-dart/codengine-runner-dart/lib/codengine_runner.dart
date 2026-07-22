@@ -1,4 +1,5 @@
 /// Execute the codengine IR in Dart.
 library;
 
-export 'src/runtime.dart' show run, TaskData, TaskFunction, ModuleFunctions;
+export 'package:codengine_core/codengine_core.dart' show TaskData, TaskFunction, ModuleFunctions;
+export 'src/runtime.dart' show run;

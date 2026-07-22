@@ -6,18 +6,11 @@
 // binding (the invocation contract) is the loader's job — here a TaskFunction is
 // already a delegate that takes the input map.
 
+using Codengine.Core;
+
 namespace Codengine.Runner;
 
 using TaskData = Dictionary<string, object?>;
-
-/// <summary>A bound task function: takes the input map, returns a raw result.</summary>
-public delegate object? TaskFunction(TaskData data);
-
-/// <summary>Functions bound per module namespace; "" is the default module.</summary>
-public sealed class MissingInputError : Exception
-{
-    public MissingInputError(string message) : base(message) { }
-}
 
 public static class Engine
 {

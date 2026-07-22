@@ -1,14 +1,14 @@
 // Analyze a C# functions file into codengine task definitions, using Roslyn
-// (Microsoft.CodeAnalysis, never regex) — it reads C# the way the compiler does.
-// Produces the neutral document defined by
-// codengine-spec/schema/task-definition.schema.json.
+// (Microsoft.CodeAnalysis, never regex) — it reads C# the way the compiler does. The
+// definition *types* live in codengine-core-cs (the description contract), so a
+// generator could consume exactly what this produces.
 //
 // C# parameters are all bindable by name, so every parameter of a public static
 // method becomes a named param. C# has no clean reflection-based catch-all
 // convention, so `acceptsExtra` is always false (the catch-all conformance case is
 // skipped, exactly like Dart).
 
-using System.Text.Json.Nodes;
+using Codengine.Core;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,12 +17,12 @@ namespace Codengine.Analyzer;
 
 public static class Analyze
 {
-    public static JsonObject AnalyzeSource(string path)
+    public static TaskDefinitionDocument AnalyzeSource(string path)
     {
         string text = File.ReadAllText(path);
         var root = CSharpSyntaxTree.ParseText(text).GetCompilationUnitRoot();
 
-        var definitions = new JsonArray();
+        var definitions = new List<TaskDefinition>();
         foreach (var method in root.DescendantNodes().OfType<MethodDeclarationSyntax>())
         {
             if (!IsPublicStatic(method)) continue;
@@ -31,51 +31,32 @@ public static class Analyze
             definitions.Add(AnalyzeMethod(name, method.ParameterList));
         }
 
-        return new JsonObject
+        return new TaskDefinitionDocument { Language = "cs", Definitions = definitions };
+    }
+
+    private static bool IsPublicStatic(MethodDeclarationSyntax method) =>
+        method.Modifiers.Any(SyntaxKind.PublicKeyword) && method.Modifiers.Any(SyntaxKind.StaticKeyword);
+
+    private static TaskDefinition AnalyzeMethod(string name, ParameterListSyntax parameters) =>
+        new()
         {
-            ["version"] = "1",
-            ["language"] = "cs",
-            ["definitions"] = definitions,
+            Name = name,
+            Params = parameters.Parameters.Select(AnalyzeParameter).ToList(),
+            AcceptsExtra = false,
         };
-    }
 
-    private static bool IsPublicStatic(MethodDeclarationSyntax method)
-    {
-        bool isPublic = method.Modifiers.Any(SyntaxKind.PublicKeyword);
-        bool isStatic = method.Modifiers.Any(SyntaxKind.StaticKeyword);
-        return isPublic && isStatic;
-    }
-
-    private static JsonObject AnalyzeMethod(string name, ParameterListSyntax parameters)
-    {
-        var paramArray = new JsonArray();
-        foreach (var parameter in parameters.Parameters)
-            paramArray.Add(AnalyzeParameter(parameter));
-
-        return new JsonObject
-        {
-            ["name"] = name,
-            ["params"] = paramArray,
-            ["acceptsExtra"] = false,
-        };
-    }
-
-    private static JsonObject AnalyzeParameter(ParameterSyntax parameter)
+    private static ParamDefinition AnalyzeParameter(ParameterSyntax parameter)
     {
         var (kind, nullable) = TypeKind(parameter.Type);
         var defaultClause = parameter.Default;
-        bool required = defaultClause is null;
-
-        var result = new JsonObject
+        return new ParamDefinition
         {
-            ["name"] = parameter.Identifier.ValueText,
-            ["kind"] = kind,
-            ["required"] = required,
-            ["nullable"] = nullable,
+            Name = parameter.Identifier.ValueText,
+            Kind = kind,
+            Required = defaultClause is null,
+            Nullable = nullable,
+            Default = defaultClause is null ? null : Literal(defaultClause.Value),
         };
-        if (!required)
-            result["default"] = Literal(defaultClause!.Value);
-        return result;
     }
 
     private static (string Kind, bool Nullable) TypeKind(TypeSyntax? type)
@@ -110,17 +91,19 @@ public static class Analyze
         return (kindName, false);
     }
 
-    private static JsonNode? Literal(ExpressionSyntax expression)
+    // A literal default as a plain CLR value (integers -> long, reals -> double), the
+    // same normalization the execution side uses.
+    private static object? Literal(ExpressionSyntax expression)
     {
         switch (expression)
         {
             case LiteralExpressionSyntax literal:
                 return literal.Kind() switch
                 {
-                    SyntaxKind.NumericLiteralExpression => NumericNode(literal.Token.Value),
-                    SyntaxKind.StringLiteralExpression => JsonValue.Create((string?)literal.Token.Value),
-                    SyntaxKind.TrueLiteralExpression => JsonValue.Create(true),
-                    SyntaxKind.FalseLiteralExpression => JsonValue.Create(false),
+                    SyntaxKind.NumericLiteralExpression => NormalizeNumber(literal.Token.Value),
+                    SyntaxKind.StringLiteralExpression => (string?)literal.Token.Value,
+                    SyntaxKind.TrueLiteralExpression => true,
+                    SyntaxKind.FalseLiteralExpression => false,
                     SyntaxKind.NullLiteralExpression => null,
                     _ => null,
                 };
@@ -131,27 +114,19 @@ public static class Analyze
         }
     }
 
-    private static JsonNode? NumericNode(object? value) => value switch
+    private static object? NormalizeNumber(object? value) => value switch
     {
-        int i => JsonValue.Create(i),
-        long l => JsonValue.Create(l),
-        double d => JsonValue.Create(d),
-        float f => JsonValue.Create((double)f),
-        decimal m => JsonValue.Create(m),
-        _ => null,
+        double d => d,
+        float f => (double)f,
+        decimal m => (double)m,
+        null => null,
+        _ => Convert.ToInt64(value), // int/long/short/byte/uint/... -> long
     };
 
-    private static JsonNode? Negate(JsonNode? node)
+    private static object? Negate(object? value) => value switch
     {
-        if (node is null) return null;
-        var value = node.GetValue<object>();
-        return value switch
-        {
-            int i => JsonValue.Create(-i),
-            long l => JsonValue.Create(-l),
-            double d => JsonValue.Create(-d),
-            decimal m => JsonValue.Create(-m),
-            _ => node,
-        };
-    }
+        long l => -l,
+        double d => -d,
+        _ => value,
+    };
 }

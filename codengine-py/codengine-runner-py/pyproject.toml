@@ -9,7 +9,7 @@ description = "Execute the codengine IR (Intermediate Representation) in Python.
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-dependencies = []
+dependencies = ["codengine-core", "codengine-loader"]
 
 [tool.setuptools.packages.find]
 include = ["codengine_runner*"]

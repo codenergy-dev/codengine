@@ -1,8 +1,8 @@
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import type { TaskFunction, FunctionMap } from "codengine-core-ts";
 
-export type TaskFunction = (input: Record<string, unknown>) => unknown;
-export type FunctionMap = Record<string, TaskFunction>;
+export type { TaskFunction, FunctionMap } from "codengine-core-ts";
 
 /**
  * Load TS/JS task functions from one or more files and merge them. A name defined

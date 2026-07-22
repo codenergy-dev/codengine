@@ -1,4 +1,4 @@
-import type { TaskData, WorkflowIR } from "codengine-runner-ts";
+import type { TaskData, WorkflowIR } from "codengine-core-ts";
 
 /** A language a runner can execute. */
 export type Language = "ts" | "py" | "dart" | "cs";

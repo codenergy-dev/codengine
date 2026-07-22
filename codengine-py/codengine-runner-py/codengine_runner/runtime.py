@@ -7,18 +7,15 @@ executionPlan and only resolves functions and applies the runtime rules.
 
 import inspect
 from itertools import product
-from typing import Any, Callable, Optional
+from typing import Any, Optional
 
-TaskData = dict[str, Any]
-TaskFunction = Callable[..., Any]
-FunctionMap = dict[str, TaskFunction]
-#: Functions bound per module namespace; "" is the default module.
-ModuleFunctions = dict[str, FunctionMap]
-
-
-class MissingInputError(Exception):
-    """A required task input (a parameter with no default) was not provided."""
-
+from codengine_core import (
+    FunctionMap,
+    MissingInputError,
+    ModuleFunctions,
+    TaskData,
+    TaskFunction,
+)
 
 _NAMED_KINDS = (
     inspect.Parameter.POSITIONAL_OR_KEYWORD,

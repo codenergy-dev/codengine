@@ -8,6 +8,8 @@ codengine-spec/schema/task-definition.schema.json.
 import ast
 from typing import Any, Optional
 
+from codengine_core import Param, TaskDefinition, TaskDefinitions
+
 # Native type name -> neutral kind.
 _KIND_BY_NAME = {
     "int": "number",
@@ -28,7 +30,7 @@ _KIND_BY_NAME = {
 }
 
 
-def analyze_source(path: str) -> dict:
+def analyze_source(path: str) -> TaskDefinitions:
     """Parse the module at `path` and return its task-definition document."""
     with open(path, encoding="utf-8") as f:
         tree = ast.parse(f.read(), filename=path)
@@ -42,9 +44,9 @@ def analyze_source(path: str) -> dict:
     return {"version": "1", "language": "py", "definitions": definitions}
 
 
-def _analyze_function(node: ast.FunctionDef) -> dict:
+def _analyze_function(node: ast.FunctionDef) -> TaskDefinition:
     args = node.args
-    params: list[dict] = []
+    params: list[Param] = []
 
     # positional-or-keyword (posonly are excluded: they can't be bound by name)
     default_offset = len(args.args) - len(args.defaults)
@@ -63,9 +65,9 @@ def _analyze_function(node: ast.FunctionDef) -> dict:
     }
 
 
-def _param(arg: ast.arg, default: Optional[ast.expr], has_default: bool) -> dict:
+def _param(arg: ast.arg, default: Optional[ast.expr], has_default: bool) -> Param:
     kind, nullable = _annotation(arg.annotation)
-    param = {
+    param: Param = {
         "name": arg.arg,
         "kind": kind,
         "required": not has_default,

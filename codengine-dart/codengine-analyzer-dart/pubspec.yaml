@@ -8,3 +8,5 @@ environment:
 
 dependencies:
   analyzer: ^7.0.0
+  codengine_core:
+    path: ../codengine-core-dart

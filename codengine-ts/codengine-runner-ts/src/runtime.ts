@@ -2,14 +2,14 @@
 // The runner is "dumb": it trusts the precomputed executionPlan and only resolves
 // functions and applies the runtime rules.
 
-import type { Task, WorkflowIR } from "./types.js";
-
-/** A single input/output object flowing between tasks. */
-export type TaskData = Record<string, unknown>;
-export type TaskFunction = (input: TaskData) => unknown;
-export type FunctionMap = Record<string, TaskFunction>;
-/** Functions bound per module namespace; `""` is the default module. */
-export type ModuleFunctions = Record<string, FunctionMap>;
+import type {
+  Task,
+  WorkflowIR,
+  TaskData,
+  TaskFunction,
+  FunctionMap,
+  ModuleFunctions,
+} from "codengine-core-ts";
 
 // Per-task run state:
 //   TaskData[]  ran and produced these outputs

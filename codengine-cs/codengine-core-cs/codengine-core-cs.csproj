@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The codengine contract for C#, in code: the execution contract (IR types,
+       TaskFunction, JSON normalization) and the description contract (task
+       definitions). The code-level mirror of codengine-spec. BCL only — no graph
+       logic, no reflection, no I/O. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Codengine.Core</RootNamespace>
+    <AssemblyName>codengine-core-cs</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="*.cs" />
+  </ItemGroup>
+
+</Project>

@@ -10,6 +10,9 @@ importers:
 
   codengine-cli:
     dependencies:
+      codengine-core-ts:
+        specifier: workspace:*
+        version: link:../codengine-ts/codengine-core-ts
       codengine-loader-ts:
         specifier: workspace:*
         version: link:../codengine-ts/codengine-loader-ts
@@ -50,6 +53,9 @@ importers:
 
   codengine-ts/codengine-analyzer-ts:
     dependencies:
+      codengine-core-ts:
+        specifier: workspace:*
+        version: link:../codengine-core-ts
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -58,7 +64,20 @@ importers:
         specifier: 22.20.1
         version: 22.20.1
 
+  codengine-ts/codengine-core-ts:
+    devDependencies:
+      '@types/node':
+        specifier: 22.20.1
+        version: 22.20.1
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+
   codengine-ts/codengine-loader-ts:
+    dependencies:
+      codengine-core-ts:
+        specifier: workspace:*
+        version: link:../codengine-core-ts
     devDependencies:
       '@types/node':
         specifier: 22.20.1
@@ -69,6 +88,9 @@ importers:
 
   codengine-ts/codengine-runner-ts:
     dependencies:
+      codengine-core-ts:
+        specifier: workspace:*
+        version: link:../codengine-core-ts
       codengine-loader-ts:
         specifier: workspace:*
         version: link:../codengine-loader-ts

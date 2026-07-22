@@ -5,8 +5,9 @@
 import 'package:analyzer/dart/analysis/features.dart';
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:codengine_core/codengine_core.dart';
 
-Map<String, dynamic> analyzeSource(String path) {
+TaskDefinitions analyzeSource(String path) {
   final result = parseFile(
     path: path,
     featureSet: FeatureSet.latestLanguageVersion(),

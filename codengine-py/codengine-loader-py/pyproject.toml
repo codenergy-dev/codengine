@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codengine-loader"
+version = "0.1.0"
+description = "Load Python task functions (a module's files) into a function map."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = ["codengine-core"]
+
+[tool.setuptools.packages.find]
+include = ["codengine_loader*"]
