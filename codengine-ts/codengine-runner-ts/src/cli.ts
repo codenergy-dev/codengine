@@ -8,7 +8,7 @@
 // Python runner.
 
 import { loadFunctions } from "codengine-loader-ts";
-import { run } from "./index.js";
+import { run, inProcessExecutor } from "./index.js";
 import type { ModuleFunctions } from "./index.js";
 
 interface ModuleSpec {
@@ -26,7 +26,7 @@ async function main(): Promise<void> {
     functions[module] = await loadFunctions(spec.files);
   }
 
-  const result = run(request.workflows, functions, request.entry, request.input ?? {});
+  const result = await run(request.workflows, inProcessExecutor(functions), request.entry, request.input ?? {});
   process.stdout.write(JSON.stringify({ result }));
 }
 

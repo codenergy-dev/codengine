@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
-import { run } from "../src/index.js";
+import { run, inProcessExecutor } from "../src/index.js";
 import type { ModuleFunctions, TaskData, TaskFunction, WorkflowIR } from "../src/index.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -55,11 +55,11 @@ for (const name of cases) {
     .map((file) => JSON.parse(readFileSync(join(workflowsDir, file), "utf8")) as WorkflowIR);
 
   for (const file of readdirSync(runsDir).filter((f) => f.endsWith(".json")).sort()) {
-    test(`runner conformance: ${name}/${file}`, () => {
+    test(`runner conformance: ${name}/${file}`, async () => {
       const { entry, input, expectedOutput } = JSON.parse(
         readFileSync(join(runsDir, file), "utf8"),
       );
-      const actual = run(workflows, catalog, entry, input as TaskData);
+      const actual = await run(workflows, inProcessExecutor(catalog), entry, input as TaskData);
       assert.deepStrictEqual(actual, expectedOutput);
     });
   }

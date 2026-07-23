@@ -127,6 +127,31 @@ test("runs a Dart module (analyze -> generate glue -> run)", { skip: !existsSync
   assert.deepStrictEqual(result, [{ message: "Hello, Dart!" }]);
 });
 
+// Cross-language: one workflow whose modules span two languages. The TS engine
+// orchestrates; the TS module runs in-process, the Python module in a warm worker.
+// Proves the engine/executor split + the subprocess transport (plan 0017).
+test("runs a cross-language workflow (TS engine + Python worker)", { skip: !existsSync(pyPython) }, async () => {
+  const result = await runWorkflow({
+    manifest: join(fixtures, "cross-language", "codengine.json"),
+    python: pyPython,
+    entry: "en.greet",
+    input: { name: "Cross" },
+  });
+  assert.deepStrictEqual(result, [{ message: "Hello, Cross!" }]);
+});
+
+// A straight-line foreign segment (step_a -> step_b -> output, all Python) is handed
+// to the worker as one chain — the linear-segment batching (plan 0017, step 5).
+test("runs a cross-language linear segment as one worker chain", { skip: !existsSync(pyPython) }, async () => {
+  const result = await runWorkflow({
+    manifest: join(fixtures, "cross-language-chain", "codengine.json"),
+    python: pyPython,
+    entry: "en.greet",
+    input: { name: "Cross" },
+  });
+  assert.deepStrictEqual(result, [{ message: "Hi Cross a b" }]);
+});
+
 // End-to-end C# (a compiled language *with* reflection): the user writes plain public
 // static methods and their .csproj has NO codengine reference. The runner builds the
 // project, loads the assembly, and binds parameters by reflection — no generator.

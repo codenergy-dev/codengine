@@ -1,5 +1,5 @@
 import { loadFunctions } from "codengine-loader-ts";
-import { run as executeTs } from "codengine-runner-ts";
+import { run as executeTs, inProcessExecutor } from "codengine-runner-ts";
 import type { ModuleFunctions, TaskData, WorkflowIR } from "codengine-core-ts";
 import type { ModuleBinding, Runner } from "./types.js";
 
@@ -15,6 +15,6 @@ export class InProcessTsRunner implements Runner {
     for (const [module, binding] of Object.entries(modules)) {
       functions[module] = await loadFunctions(binding.files);
     }
-    return executeTs(workflows, functions, entry, input);
+    return executeTs(workflows, inProcessExecutor(functions), entry, input);
   }
 }

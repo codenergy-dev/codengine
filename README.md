@@ -114,13 +114,16 @@ Done so far:
 - [x] **`core` contract packages** — each language's code-level mirror of the spec.
 - [x] **Module package format** — portable, source-free distribution of a module
   ([`packaging.md`](codengine-spec/packaging.md)).
+- [x] **Cross-language on the server** — one authoritative **engine** drives; a task
+  in another language runs in that language's **warm worker** over a transport
+  (subprocess). Split engine/executor + a linear-segment batching optimization
+  ([plan 0017](plans/0017-cross-language-execution.md)). Working today: a TS engine
+  calling a Python worker.
 
 Next / planned:
 
-- [ ] **Cross-language on the server** — split engine (graph) from executor
-  (function call); a pluggable **transport abstraction** (subprocess + remote first);
-  the planner **partitions the graph by language**, crossing the boundary only at the
-  edges.
+- [ ] **More workers + a remote transport** — Dart/C# workers; a `remote`
+  (HTTP/gRPC) transport so a module can live anywhere; non-TS orchestrators.
 - [ ] **Package builder + loaders** — build a package from a manifest; load/run a
   package through a transport.
 - [ ] **Browser / WASM** — run workflows where processes aren't available.

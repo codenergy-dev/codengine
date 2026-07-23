@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codengine-worker"
+version = "0.1.0"
+description = "A persistent Python worker: execute a module's task functions on request (the executor for cross-language runs)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = ["codengine-core", "codengine-loader"]
+
+[tool.setuptools.packages.find]
+include = ["codengine_worker*"]

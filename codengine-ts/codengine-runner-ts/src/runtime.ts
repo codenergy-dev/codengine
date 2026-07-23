@@ -2,14 +2,7 @@
 // The runner is "dumb": it trusts the precomputed executionPlan and only resolves
 // functions and applies the runtime rules.
 
-import type {
-  Task,
-  WorkflowIR,
-  TaskData,
-  TaskFunction,
-  FunctionMap,
-  ModuleFunctions,
-} from "codengine-core-ts";
+import type { Task, WorkflowIR, TaskData, Executor } from "codengine-core-ts";
 
 // Per-task run state:
 //   TaskData[]  ran and produced these outputs
@@ -128,26 +121,60 @@ function buildEntrypointIndex(workflows: WorkflowIR[]): Map<string, string> {
   return index;
 }
 
-function resolveFunction(functions: ModuleFunctions, task: Task): TaskFunction {
-  const module = task.module ?? "";
-  const fn = functions[module]?.[task.function];
-  if (!fn) {
-    const label = module === "" ? "the default module" : `module '${module}'`;
-    throw new Error(`No function '${task.function}' bound in ${label} (task '${task.name}').`);
+function isPlainObject(value: unknown): value is TaskData {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function hasDirectives(task: Task): boolean {
+  return Object.keys(task.args).some((k) => k.startsWith("^") || k.endsWith("$"));
+}
+
+// The maximal straight-line, same-module segment starting at `first`: each task has a
+// single fanOut to the next, the next has a single fanIn from it, no args/directives
+// between, no routing before the last, no cross-workflow hop. Such a segment can be
+// handed to the executor as one chain — all branching still resolves in this engine.
+function linearSegment(
+  tasks: Map<string, Task>,
+  entrypoints: Map<string, string>,
+  first: Task,
+  workflowName: string,
+): Task[] {
+  const module = first.module ?? "";
+  const segment = [first];
+  let current = first;
+  while (
+    current.name !== "output" &&
+    current.routes.length === 0 &&
+    current.fanOut.length === 1 &&
+    !hasDirectives(current)
+  ) {
+    const next = tasks.get(current.fanOut[0]);
+    if (!next) break;
+    if ((next.module ?? "") !== module) break;
+    if (next.fanIn.length !== 1 || next.fanIn[0] !== current.name) break;
+    if (Object.keys(next.args).length > 0 || hasDirectives(next)) break;
+    const owner = entrypoints.get(next.name);
+    if (owner && owner !== workflowName) break;
+    segment.push(next);
+    current = next;
   }
-  return fn;
+  return segment;
 }
 
 /**
  * Run a workflow registry from the `entry` address with `input`. Returns the
  * `output` task's collected output of the workflow that owns the entry, or `null`.
+ *
+ * The engine calls `executor.execute(module, function, input)` for every task; the
+ * executor decides how — a direct in-process call, or a message to a worker in
+ * another language. All graph semantics stay here, in the one engine.
  */
-export function run(
+export async function run(
   workflows: WorkflowIR[],
-  functions: ModuleFunctions,
+  executor: Executor,
   entry: string,
   input: TaskData = {},
-): TaskData[] | null {
+): Promise<TaskData[] | null> {
   const registry = new Map(workflows.map((workflow) => [workflow.workflow, workflow]));
   const entrypoints = buildEntrypointIndex(workflows);
 
@@ -166,20 +193,20 @@ export function run(
   }
   if (!target) throw new Error(`Unknown entry address '${entry}'.`);
 
-  const state = executeWorkflow(registry, functions, entrypoints, target, entry, input, isolated);
+  const state = await executeWorkflow(registry, executor, entrypoints, target, entry, input, isolated);
   const result = state.get("output");
   return result === undefined ? null : result;
 }
 
-function executeWorkflow(
+async function executeWorkflow(
   registry: Map<string, WorkflowIR>,
-  functions: ModuleFunctions,
+  executor: Executor,
   entrypoints: Map<string, string>,
   workflowName: string,
   entryTask: string,
   input: TaskData,
   isolated: boolean,
-): Map<string, State> {
+): Promise<Map<string, State>> {
   const ir = registry.get(workflowName);
   if (!ir) throw new Error(`Unknown workflow '${workflowName}'.`);
   const tasks = new Map(ir.tasks.map((task) => [task.name, task]));
@@ -236,9 +263,9 @@ function executeWorkflow(
       const mirrored = new Map<string, TaskData[]>();
       for (const raw of inputs) {
         const subInput = formatData(task, { ...raw, ...args }, "input");
-        const subState = executeWorkflow(
+        const subState = await executeWorkflow(
           registry,
-          functions,
+          executor,
           entrypoints,
           chainOwner,
           name,
@@ -259,12 +286,37 @@ function executeWorkflow(
       continue;
     }
 
-    const fn = resolveFunction(functions, task);
+    const module = task.module ?? "";
+
+    // Linear-segment batching: hand a straight-line same-module segment to the
+    // executor in one call (fewer boundary crossings). Only when a single plain-object
+    // flows in; the executor feeds each object result to the next and hands back the
+    // first non-object result — with its input — for this engine to classify.
+    if (executor.executeChain && inputs.length === 1 && isPlainObject(inputs[0])) {
+      const segment = linearSegment(tasks, entrypoints, task, workflowName);
+      if (segment.length > 1) {
+        const formatted = formatData(task, { ...inputs[0], ...args }, "input");
+        const { result, consumed, input: fed } = await executor.executeChain(
+          module,
+          segment.map((segmentTask) => segmentTask.function),
+          formatted,
+        );
+        // Tasks that ran and fed an object forward are private intermediates.
+        for (let i = 0; i < consumed - 1; i++) state.set(segment[i].name, null);
+        const stopped = segment[consumed - 1];
+        const chainOutputs: TaskData[] = [];
+        const chainRouted = classify(stopped, result, fed, chainOutputs, injected);
+        state.set(stopped.name, chainRouted ? null : chainOutputs.length > 0 ? chainOutputs : null);
+        continue;
+      }
+    }
+
     const outputs: TaskData[] = [];
     let routed = false;
     for (const raw of inputs) {
       const formatted = formatData(task, { ...raw, ...args }, "input");
-      routed = classify(task, fn(formatted), formatted, outputs, injected) || routed;
+      const result = await executor.execute(module, task.function, formatted);
+      routed = classify(task, result, formatted, outputs, injected) || routed;
     }
 
     state.set(name, routed ? null : outputs.length > 0 ? outputs : null);

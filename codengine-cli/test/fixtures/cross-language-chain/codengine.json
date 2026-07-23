@@ -1,0 +1,8 @@
+{
+  "version": "1",
+  "workflows": ["*.yuml"],
+  "modules": {
+    "": { "language": "py", "functions": ["tasks.py"], "root": "." },
+    "en": { "language": "ts", "functions": ["greet.mjs"] }
+  }
+}

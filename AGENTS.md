@@ -76,36 +76,48 @@ per language: core, analyzer, loader, runner, and optionally generator).
 | `codengine-vscode` | Thin LSP client for the language server. *(planned)* | TypeScript |
 
 **Per-language family (`codengine-<lang>/…`):** the roles are a fixed invariant.
-**Four are mandatory** (`core`, `analyzer`, `loader`, `runner`); **`generator` is
-optional** (only a target runtime without reflection needs it).
+**Four are mandatory** (`core`, `analyzer`, `loader`, `runner`); **`generator` and
+`worker` are optional**.
 
 - **core** — the contract, in that language's types: the **execution contract** (IR
-  types, `TaskData`, `TaskFunction`, JSON handling, the missing-input error) and the
-  **description contract** (task-definition types). The code-level mirror of
-  `codengine-spec`. No logic, no I/O.
+  types, `TaskData`, `TaskFunction`, the `Executor` seam, JSON handling, the
+  missing-input error) and the **description contract** (task-definition types). The
+  code-level mirror of `codengine-spec`. No logic, no I/O.
 - **analyzer** — source → task definitions (function signatures) via native tooling.
   *Produces* the description contract.
-- **loader** — load the (glue or direct) functions into a callable map.
-- **runner** — execute the IR with the loaded functions.
+- **loader** — load the functions into a callable map (and, where the language needs
+  it, `invoke` one by named binding — the invocation contract).
+- **runner** — execute the IR. Split into an **engine** (graph traversal, the single
+  authority for fan-out/routing/fan-in) that calls an **executor** per task.
 - **generator** — task definitions → generated glue code. *Consumes* the description
-  contract. Mandatory only for a reflection-less compiled target (Dart AOT); an
-  interpreted or reflective runtime skips it.
+  contract. Only a reflection-less compiled target (Dart AOT) needs it.
+- **worker** — a persistent process that executes a module's functions on request
+  (`load` / `call` / `callChain`), reusing the loader. It is the *executor* side for a
+  **cross-language** run: the orchestrating engine (in another language) keeps the
+  module loaded ("warm") and sends cheap calls. A language needs it only to be *called*
+  cross-language.
 
 Dependencies point **inward** to `core` (a shared kernel), never runner↔loader:
 
 ```
 core  ←  analyzer      (produces the description)
 core  ←  loader
-core  ←  runner        (may also use loader)
+core  ←  runner        (engine + executor; may use loader)
 core  ←  generator     (consumes the description; optional)
+core  ←  worker        (loader + a request loop; optional)
 ```
 
 | Packages | Roles | Group |
 |--------|------|-------|
-| `codengine-core-ts` / `codengine-analyzer-ts` / `codengine-loader-ts` / `codengine-runner-ts` | core / analyze / load / run | `codengine-ts/` |
-| `codengine-core-py` / `codengine-analyzer-py` / `codengine-loader-py` / `codengine-runner-py` | core / analyze / load / run | `codengine-py/` |
+| `codengine-core-ts` / `codengine-analyzer-ts` / `codengine-loader-ts` / `codengine-runner-ts` / `codengine-worker-ts` | core / analyze / load / run / work | `codengine-ts/` |
+| `codengine-core-py` / `codengine-analyzer-py` / `codengine-loader-py` / `codengine-runner-py` / `codengine-worker-py` | core / analyze / load / run / work | `codengine-py/` |
 | `codengine-core-dart` / `codengine-analyzer-dart` / `codengine-loader-dart` / `codengine-runner-dart` / `codengine-generator-dart` | core / analyze / load / run / generate | `codengine-dart/` |
 | `codengine-core-cs` / `codengine-analyzer-cs` / `codengine-loader-cs` / `codengine-runner-cs` | core / analyze / load / run | `codengine-cs/` |
+
+**Cross-language** (server, so far): one **engine** (TS) drives; a task in another
+language runs in that language's **warm worker** via a transport (subprocess now,
+`remote` planned). The planner-level graph partitioning was rejected in favour of one
+authoritative engine + a linear-segment batching optimization (see plan 0017).
 
 The **generator** is about *reflection, not compilation*. Dart (AOT, no reflection)
 is the only family with all five roles — its generator writes glue with named-binding

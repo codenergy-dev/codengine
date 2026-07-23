@@ -5,47 +5,11 @@ codengine-runner-ts. The runner is "dumb": it trusts the precomputed
 executionPlan and only resolves functions and applies the runtime rules.
 """
 
-import inspect
 from itertools import product
 from typing import Any, Optional
 
-from codengine_core import (
-    FunctionMap,
-    MissingInputError,
-    ModuleFunctions,
-    TaskData,
-    TaskFunction,
-)
-
-_NAMED_KINDS = (
-    inspect.Parameter.POSITIONAL_OR_KEYWORD,
-    inspect.Parameter.KEYWORD_ONLY,
-)
-
-
-def _invoke(task: dict, fn: TaskFunction, data: TaskData) -> Any:
-    """Call `fn` with `data` bound as named arguments (see the invocation contract).
-
-    Passes only the entries the function declares; if it declares `**kwargs`, passes
-    everything. A required parameter (no default) with no matching input raises a
-    normalized MissingInputError.
-    """
-    parameters = inspect.signature(fn).parameters
-    named = {name: p for name, p in parameters.items() if p.kind in _NAMED_KINDS}
-
-    missing = [
-        name
-        for name, p in named.items()
-        if p.default is inspect.Parameter.empty and name not in data
-    ]
-    if missing:
-        raise MissingInputError(
-            f"Task '{task['name']}': missing required input(s): {', '.join(missing)}"
-        )
-
-    if any(p.kind is inspect.Parameter.VAR_KEYWORD for p in parameters.values()):
-        return fn(**data)
-    return fn(**{name: data[name] for name in named if name in data})
+from codengine_core import FunctionMap, ModuleFunctions, TaskData, TaskFunction
+from codengine_loader import invoke
 
 
 def _euclidean_index(n: int, length: int) -> int:
@@ -279,7 +243,7 @@ def _execute_workflow(
         routed = False
         for raw in inputs:
             formatted = _format_data(task, {**raw, **args}, "input")
-            if _classify(task, _invoke(task, fn, formatted), formatted, outputs, injected):
+            if _classify(task, invoke(fn, formatted, task["name"]), formatted, outputs, injected):
                 routed = True
 
         state[name] = None if routed else (outputs if outputs else None)
