@@ -1,0 +1,11 @@
+name: codengine_worker
+description: A persistent Dart worker - execute a module's task functions on request.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.0.0
+
+dependencies:
+  codengine_core:
+    path: ../codengine-core-dart

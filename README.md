@@ -117,13 +117,14 @@ Done so far:
 - [x] **Cross-language on the server** — one authoritative **engine** drives; a task
   in another language runs in that language's **warm worker** over a transport
   (subprocess). Split engine/executor + a linear-segment batching optimization
-  ([plan 0017](plans/0017-cross-language-execution.md)). Working today: a TS engine
-  calling a Python worker.
+  ([plan 0017](plans/0017-cross-language-execution.md)). A TS engine can call a
+  **Python, C#, or Dart** worker ([plan 0018](plans/0018-dart-cs-workers.md)); the
+  Dart worker is generated glue (Dart AOT has no reflection).
 
 Next / planned:
 
-- [ ] **More workers + a remote transport** — Dart/C# workers; a `remote`
-  (HTTP/gRPC) transport so a module can live anywhere; non-TS orchestrators.
+- [ ] **A remote transport + non-TS orchestrators** — a `remote` (HTTP/gRPC)
+  transport so a module can live anywhere; an engine hosted in another language.
 - [ ] **Package builder + loaders** — build a package from a manifest; load/run a
   package through a transport.
 - [ ] **Browser / WASM** — run workflows where processes aren't available.

@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- A persistent C# worker: the executor side of a cross-language run. Reuses the
+       loader (build the module's project + reflect its assembly) and serves calls.
+       BCL only — no NuGet dependencies. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Codengine.Worker</RootNamespace>
+    <AssemblyName>codengine-worker-cs</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../codengine-core-cs/codengine-core-cs.csproj" />
+    <ProjectReference Include="../codengine-loader-cs/codengine-loader-cs.csproj" />
+  </ItemGroup>
+
+</Project>

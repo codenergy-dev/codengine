@@ -152,6 +152,33 @@ test("runs a cross-language linear segment as one worker chain", { skip: !exists
   assert.deepStrictEqual(result, [{ message: "Hi Cross a b" }]);
 });
 
+// Cross-language with the C# worker: it builds the module's project and reflects it
+// (C# has reflection), then serves calls warm.
+const csWorkerDll = ["Release", "Debug"]
+  .map((config) => resolve(repo, "codengine-cs", "codengine-worker-cs", "bin", config, "net10.0", "codengine-worker-cs.dll"))
+  .find((dll) => existsSync(dll));
+test("runs a cross-language workflow (TS engine + C# worker)", { skip: !csWorkerDll }, async () => {
+  if (csWorkerDll) process.env.CODENGINE_WORKER_CS_DLL = csWorkerDll;
+  const result = await runWorkflow({
+    manifest: join(fixtures, "cross-language-cs", "codengine.json"),
+    entry: "en.greet",
+    input: { name: "Cross" },
+  });
+  assert.deepStrictEqual(result, [{ message: "Hello, Cross!" }]);
+});
+
+// Cross-language with the Dart worker: Dart AOT has no reflection, so the generator
+// writes worker glue with the functions baked in, and that glue serves the calls.
+const dartCrossProject = join(fixtures, "cross-language-dart");
+test("runs a cross-language workflow (TS engine + Dart worker)", { skip: !existsSync(join(dartCrossProject, ".dart_tool")) }, async () => {
+  const result = await runWorkflow({
+    manifest: join(dartCrossProject, "codengine.json"),
+    entry: "en.greet",
+    input: { name: "Cross" },
+  });
+  assert.deepStrictEqual(result, [{ message: "Hello, Cross!" }]);
+});
+
 // End-to-end C# (a compiled language *with* reflection): the user writes plain public
 // static methods and their .csproj has NO codengine reference. The runner builds the
 // project, loads the assembly, and binds parameters by reflection — no generator.

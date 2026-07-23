@@ -111,13 +111,16 @@ core  ←  worker        (loader + a request loop; optional)
 |--------|------|-------|
 | `codengine-core-ts` / `codengine-analyzer-ts` / `codengine-loader-ts` / `codengine-runner-ts` / `codengine-worker-ts` | core / analyze / load / run / work | `codengine-ts/` |
 | `codengine-core-py` / `codengine-analyzer-py` / `codengine-loader-py` / `codengine-runner-py` / `codengine-worker-py` | core / analyze / load / run / work | `codengine-py/` |
-| `codengine-core-dart` / `codengine-analyzer-dart` / `codengine-loader-dart` / `codengine-runner-dart` / `codengine-generator-dart` | core / analyze / load / run / generate | `codengine-dart/` |
-| `codengine-core-cs` / `codengine-analyzer-cs` / `codengine-loader-cs` / `codengine-runner-cs` | core / analyze / load / run | `codengine-cs/` |
+| `codengine-core-dart` / `codengine-analyzer-dart` / `codengine-loader-dart` / `codengine-runner-dart` / `codengine-generator-dart` / `codengine-worker-dart` | core / analyze / load / run / generate / work | `codengine-dart/` |
+| `codengine-core-cs` / `codengine-analyzer-cs` / `codengine-loader-cs` / `codengine-runner-cs` / `codengine-worker-cs` | core / analyze / load / run / work | `codengine-cs/` |
 
-**Cross-language** (server, so far): one **engine** (TS) drives; a task in another
-language runs in that language's **warm worker** via a transport (subprocess now,
-`remote` planned). The planner-level graph partitioning was rejected in favour of one
-authoritative engine + a linear-segment batching optimization (see plan 0017).
+**Cross-language** (server): one **engine** (TS) drives; a task in another language
+runs in that language's **warm worker** via a transport (subprocess now, `remote`
+planned). All four languages have a worker. A reflective worker (`py`, `cs`) loads the
+module directly; a reflection-less one (`dart`) is **generated glue** — the generator
+writes a worker that bakes the functions in, then `serve(...)`s them. The planner-level
+graph partitioning was rejected in favour of one authoritative engine + a
+linear-segment batching optimization (see plans 0017, 0018).
 
 The **generator** is about *reflection, not compilation*. Dart (AOT, no reflection)
 is the only family with all five roles — its generator writes glue with named-binding

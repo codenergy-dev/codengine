@@ -1,4 +1,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { loadFunctions } from "codengine-loader-ts";
 import { run } from "codengine-runner-ts";
 import type { ChainResult, Executor, FunctionMap, TaskData, WorkflowIR } from "codengine-core-ts";
@@ -125,14 +128,74 @@ class RoutingExecutor implements Executor {
   }
 }
 
-function spawnWorker(language: string, module: ResolvedModule, pythonOverride?: string): WorkerClient {
+/** Locate the built codengine-worker-cs assembly (env override, else the build output). */
+function resolveCsWorkerDll(): string {
+  const override = process.env.CODENGINE_WORKER_CS_DLL;
+  if (override) return override;
+  // cross-language.js: <repo>/codengine-cli/dist/src/runner/… -> up 4 to the repo root.
+  const here = dirname(fileURLToPath(import.meta.url));
+  const base = join(here, "..", "..", "..", "..", "codengine-cs", "codengine-worker-cs", "bin");
+  for (const config of ["Release", "Debug"]) {
+    const dll = join(base, config, "net10.0", "codengine-worker-cs.dll");
+    if (existsSync(dll)) return dll;
+  }
+  throw new Error(
+    "codengine-worker-cs is not built. Run `dotnet build` in codengine-cs/codengine-worker-cs, " +
+      "or set CODENGINE_WORKER_CS_DLL to the built assembly.",
+  );
+}
+
+/** Run a one-shot process, feeding stdin and collecting stdout. */
+function runOnce(command: string, args: string[], cwd: string, stdin: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { cwd, stdio: ["pipe", "pipe", "pipe"] });
+    let out = "";
+    let err = "";
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", (chunk: string) => (out += chunk));
+    child.stderr.on("data", (chunk: string) => (err += chunk));
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code !== 0) reject(new Error(err.trim() || `${command} exited with ${code}`));
+      else resolve(out.trim());
+    });
+    child.stdin.end(stdin);
+  });
+}
+
+/** Start one warm worker for a language, given all of that language's modules. */
+async function spawnWorker(
+  language: string,
+  modules: ResolvedModule[],
+  pythonOverride?: string,
+): Promise<WorkerClient> {
   if (language === "py") {
-    const python = pythonOverride ?? module.python ?? "python3";
+    const python = pythonOverride ?? modules.find((module) => module.python)?.python ?? "python3";
     return new WorkerClient(python, ["-m", "codengine_worker"]);
+  }
+  if (language === "cs") {
+    // Reflection: the worker builds each module's project and reflects it on `load`.
+    return new WorkerClient("dotnet", [resolveCsWorkerDll()]);
+  }
+  if (language === "dart") {
+    // No reflection: generate the worker glue (functions baked in), then run it.
+    const roots = [...new Set(modules.map((module) => module.root))];
+    if (roots.length > 1) {
+      throw new Error(`Dart modules must share one package root; got: ${roots.join(", ")}.`);
+    }
+    const root = roots[0];
+    const spec = JSON.stringify({
+      functions: Object.fromEntries(
+        modules.map((module) => [module.name, { files: module.files, root: module.root }]),
+      ),
+    });
+    const glue = await runOnce("dart", ["run", "codengine_generator:worker"], root, spec);
+    return new WorkerClient("dart", ["run", glue], root);
   }
   throw new Error(
     `Cross-language runs don't support a '${language}' worker yet. ` +
-      "Supported foreign languages: py.",
+      "Supported foreign languages: py, cs, dart.",
   );
 }
 
@@ -152,19 +215,26 @@ export async function runCrossLanguage(
   const workerByLanguage: Record<string, WorkerClient> = {};
 
   try {
+    // TS runs in-process; every other language is grouped so its worker starts once
+    // with all of that language's modules (Dart bakes them into the glue).
+    const foreign = new Map<string, ResolvedModule[]>();
     for (const module of resolved) {
       languageByModule[module.name] = module.language;
       if (module.language === "ts") {
         tsFunctions[module.name] = await loadFunctions(module.files);
       } else {
-        let worker = workerByLanguage[module.language];
-        if (!worker) {
-          worker = spawnWorker(module.language, module, pythonOverride);
-          workerByLanguage[module.language] = worker;
-        }
-        await worker.load(module.name, module.files, module.root);
+        const group = foreign.get(module.language) ?? [];
+        group.push(module);
+        foreign.set(module.language, group);
       }
     }
+
+    for (const [language, modules] of foreign) {
+      const worker = await spawnWorker(language, modules, pythonOverride);
+      workerByLanguage[language] = worker;
+      for (const module of modules) await worker.load(module.name, module.files, module.root);
+    }
+
     const executor = new RoutingExecutor(tsFunctions, languageByModule, workerByLanguage);
     return await run(workflows, executor, entry, input);
   } finally {

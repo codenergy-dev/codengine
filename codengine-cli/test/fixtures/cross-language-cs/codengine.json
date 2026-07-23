@@ -1,0 +1,8 @@
+{
+  "version": "1",
+  "workflows": ["*.yuml"],
+  "modules": {
+    "": { "language": "cs", "functions": ["Tasks.cs"], "root": "." },
+    "en": { "language": "ts", "functions": ["greet.mjs"] }
+  }
+}
