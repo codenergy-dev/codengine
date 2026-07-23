@@ -97,6 +97,11 @@ per language: core, analyzer, loader, runner, and optionally generator).
   module loaded ("warm") and sends cheap calls. A language needs it only to be *called*
   cross-language.
 
+**Task functions may be sync or async** in every language — the invocation point
+resolves an awaitable result (Promise / `Task` / `Future` / coroutine) before the
+engine classifies it. Python/C# engines block on it; the Dart engine is async (the
+language can't block on a `Future`); TS is async (plan 0019).
+
 Dependencies point **inward** to `core` (a shared kernel), never runner↔loader:
 
 ```

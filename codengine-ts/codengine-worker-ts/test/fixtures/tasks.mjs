@@ -1,4 +1,5 @@
-export function greet({ name }) {
+// `greet` is async; the worker awaits it (sync and async both work).
+export async function greet({ name }) {
   return { message: `Hello, ${name}!` };
 }
 

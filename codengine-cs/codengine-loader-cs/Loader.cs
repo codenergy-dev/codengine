@@ -81,8 +81,18 @@ public static class Loader
                 throw new MissingInputError(
                     $"missing required input(s): {string.Join(", ", missing)}");
             }
-            return method.Invoke(null, args);
+            return Resolve(method.Invoke(null, args));
         };
+    }
+
+    /// <summary>Accept both sync and async task functions: a returned Task/Task&lt;T&gt;
+    /// is awaited (blocking) and its value taken, before the engine classifies it.</summary>
+    private static object? Resolve(object? result)
+    {
+        if (result is not Task task) return result;
+        task.GetAwaiter().GetResult(); // await + surface exceptions
+        var type = task.GetType();
+        return type.IsGenericType ? type.GetProperty("Result")!.GetValue(task) : null;
     }
 
     /// <summary>Coerce a JSON-shaped CLR value to a parameter's type (long->int, etc.).</summary>

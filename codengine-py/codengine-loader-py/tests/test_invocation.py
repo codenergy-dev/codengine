@@ -33,6 +33,12 @@ class InvocationTest(unittest.TestCase):
             invoke(fn, {"a": 1})
         self.assertIn("missing required input(s): b", str(ctx.exception))
 
+    def test_awaits_an_async_function(self):
+        async def fn(a, b):
+            return {"sum": a + b}
+
+        self.assertEqual(invoke(fn, {"a": 1, "b": 2}), {"sum": 3})
+
 
 if __name__ == "__main__":
     unittest.main()

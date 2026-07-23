@@ -59,7 +59,7 @@ Future<void> main() async {
   final request = jsonDecode(await stdin.transform(utf8.decoder).join());
   final functions = <String, Map<String, TaskFunction>>{
 ${bindings.entries}  };
-  final result = run(
+  final result = await run(
     request['workflows'] as List,
     functions,
     request['entry'] as String,

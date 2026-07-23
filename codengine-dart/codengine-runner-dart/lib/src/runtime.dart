@@ -141,7 +141,12 @@ TaskFunction _resolveFunction(ModuleFunctions functions, Map task) {
 
 /// Run a workflow registry from the `entry` address with `input`. Returns the
 /// `output` task's collected output of the workflow that owns the entry, or null.
-List<TaskData>? run(List workflows, ModuleFunctions functions, String entry, [TaskData? input]) {
+///
+/// Async because a user's task function may be `async` (return a `Future`), which Dart
+/// cannot resolve synchronously — the engine `await`s each call. A synchronous
+/// function is awaited transparently.
+Future<List<TaskData>?> run(
+    List workflows, ModuleFunctions functions, String entry, [TaskData? input]) async {
   final runInput = input ?? <String, dynamic>{};
   final registry = {for (final w in workflows) w['workflow'] as String: w as Map};
   final entrypoints = _buildEntrypointIndex(workflows);
@@ -159,11 +164,12 @@ List<TaskData>? run(List workflows, ModuleFunctions functions, String entry, [Ta
   }
   if (target == null) throw StateError("Unknown entry address '$entry'.");
 
-  final state = _executeWorkflow(registry, functions, entrypoints, target, entry, runInput, isolated);
+  final state =
+      await _executeWorkflow(registry, functions, entrypoints, target, entry, runInput, isolated);
   return state['output'];
 }
 
-Map<String, List<TaskData>?> _executeWorkflow(
+Future<Map<String, List<TaskData>?>> _executeWorkflow(
   Map registry,
   ModuleFunctions functions,
   Map<String, String> entrypoints,
@@ -171,7 +177,7 @@ Map<String, List<TaskData>?> _executeWorkflow(
   String entryTask,
   TaskData runInput,
   bool isolated,
-) {
+) async {
   final ir = registry[workflowName];
   if (ir == null) throw StateError("Unknown workflow '$workflowName'.");
   final tasks = {for (final t in ir['tasks']) t['name'] as String: t as Map};
@@ -230,8 +236,8 @@ Map<String, List<TaskData>?> _executeWorkflow(
       final mirrored = <String, List<TaskData>>{};
       for (final raw in inputs) {
         final subInput = _formatData(task, {...raw, ...args}, 'input');
-        final subState =
-            _executeWorkflow(registry, functions, entrypoints, chainOwner, name, subInput, false);
+        final subState = await _executeWorkflow(
+            registry, functions, entrypoints, chainOwner, name, subInput, false);
         subState.forEach((subName, subOutput) {
           if (!tasks.containsKey(subName) || subOutput == null) return;
           mirrored.putIfAbsent(subName, () => []).addAll(subOutput);
@@ -249,7 +255,8 @@ Map<String, List<TaskData>?> _executeWorkflow(
     var routed = false;
     for (final raw in inputs) {
       final formatted = _formatData(task, {...raw, ...args}, 'input');
-      if (_classify(task, fn(formatted), formatted, outputs, injected)) routed = true;
+      // `await` resolves an async task function's Future; a sync value passes through.
+      if (_classify(task, await fn(formatted), formatted, outputs, injected)) routed = true;
     }
     state[name] = routed ? null : (outputs.isNotEmpty ? outputs : null);
   }

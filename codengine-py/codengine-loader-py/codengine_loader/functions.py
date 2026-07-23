@@ -1,6 +1,7 @@
 """Load a user's task functions from one or more Python module paths, within the
 module's project environment (its `root`), and invoke one by named binding."""
 
+import asyncio
 import importlib.util
 import inspect
 import sys
@@ -37,8 +38,14 @@ def invoke(fn: TaskFunction, data: TaskData, label: Optional[str] = None) -> Any
         )
 
     if any(p.kind is inspect.Parameter.VAR_KEYWORD for p in parameters.values()):
-        return fn(**data)
-    return fn(**{name: data[name] for name in named if name in data})
+        result = fn(**data)
+    else:
+        result = fn(**{name: data[name] for name in named if name in data})
+
+    # Accept both sync and async task functions: resolve a coroutine to its value.
+    if inspect.isawaitable(result):
+        result = asyncio.run(result)
+    return result
 
 
 def load_functions(paths: Union[str, list[str]], root: Optional[str] = None) -> FunctionMap:

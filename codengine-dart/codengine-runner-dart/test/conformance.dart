@@ -50,7 +50,7 @@ bool deepEquals(dynamic a, dynamic b) {
   return a == b;
 }
 
-void main() {
+Future<void> main() async {
   // test -> package -> codengine-dart -> repo
   final repo = File.fromUri(Platform.script).parent.parent.parent.parent.path;
   final casesDir = Directory('$repo/codengine-spec/conformance/cases');
@@ -76,7 +76,7 @@ void main() {
     for (final runFile in runFiles) {
       final name = '${caseDir.path.split('/').last}/${runFile.path.split('/').last}';
       final spec = jsonDecode(File(runFile.path).readAsStringSync());
-      final actual = run(
+      final actual = await run(
         workflows,
         catalog,
         spec['entry'] as String,

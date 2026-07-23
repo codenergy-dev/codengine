@@ -25,12 +25,12 @@ Future<void> serve(ModuleFunctions functions, {Stream<List<int>>? input, IOSink?
   await for (final line in lines) {
     if (line.trim().isEmpty) continue;
     final request = (jsonDecode(line) as Map).cast<String, dynamic>();
-    sink.write('${jsonEncode(_handle(functions, request))}\n');
+    sink.write('${jsonEncode(await _handle(functions, request))}\n');
     await sink.flush();
   }
 }
 
-Map<String, dynamic> _handle(ModuleFunctions functions, Map<String, dynamic> request) {
+Future<Map<String, dynamic>> _handle(ModuleFunctions functions, Map<String, dynamic> request) async {
   try {
     final op = request['op'] as String;
     final module = (request['module'] as String?) ?? '';
@@ -45,7 +45,8 @@ Map<String, dynamic> _handle(ModuleFunctions functions, Map<String, dynamic> req
 
       case 'call':
         final fn = _resolve(functions, module, request['function'] as String);
-        return {'result': fn(_input(request))};
+        // `await` resolves an async function's Future; a sync value passes through.
+        return {'result': await fn(_input(request))};
 
       case 'callChain':
         var data = _input(request);
@@ -55,7 +56,7 @@ Map<String, dynamic> _handle(ModuleFunctions functions, Map<String, dynamic> req
         for (final name in (request['functions'] as List).cast<String>()) {
           final fn = _resolve(functions, module, name);
           fed = data;
-          result = fn(data);
+          result = await fn(data);
           consumed += 1;
           // Stop at the first non-object result; the engine classifies it.
           if (result is! Map) break;
