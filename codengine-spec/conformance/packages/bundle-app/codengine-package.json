@@ -1,0 +1,9 @@
+{
+  "package": "1",
+  "contract": "1",
+  "kind": "bundle",
+  "name": "greeting-app",
+  "version": "0.1.0",
+  "workflows": ["workflows/greeting.json"],
+  "modules": [{ "name": "greeting", "package": "greeting@0.1.0" }]
+}

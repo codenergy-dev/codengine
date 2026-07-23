@@ -1,4 +1,17 @@
-export type { Language, Manifest, ModuleConfig, LoadedManifest, ResolvedModule } from "./types.js";
+export type {
+  Language,
+  Manifest,
+  ModuleConfig,
+  LoadedManifest,
+  ResolvedModule,
+  ModulePackage,
+  PackageArtifact,
+  PackageDependency,
+  Bundle,
+  BundleModuleRef,
+  LoadedPackage,
+  LoadedBundle,
+} from "./types.js";
 export {
   loadManifest,
   findManifest,
@@ -8,3 +21,10 @@ export {
   resolveWorkflowFiles,
   MANIFEST_FILENAME,
 } from "./load.js";
+export {
+  loadPackage,
+  loadBundle,
+  validatePackage,
+  validateBundle,
+  PACKAGE_FILENAME,
+} from "./package.js";

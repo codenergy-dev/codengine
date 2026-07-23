@@ -1,0 +1,29 @@
+{
+  "package": "1",
+  "contract": "1",
+  "kind": "module",
+  "name": "greeting",
+  "version": "0.1.0",
+  "language": "py",
+  "description": "A minimal example module package: two Python task functions.",
+  "provenance": {
+    "builtAt": "2026-07-22T00:00:00Z",
+    "tool": "codengine-analyzer-py@0.1.0"
+  },
+  "definitions": "definitions.json",
+  "artifacts": [
+    {
+      "id": "py-source",
+      "target": "any",
+      "transport": "subprocess",
+      "files": ["artifacts/tasks.py"],
+      "root": "artifacts",
+      "entry": { "command": "python", "args": ["-m", "codengine_runner"], "protocol": "1" },
+      "integrity": {
+        "sha256": {
+          "artifacts/tasks.py": "1997c3dc1a8cc3b90e3f3dcb87638f4afdc6d084860d085adc1d6a8f54371651"
+        }
+      }
+    }
+  ]
+}

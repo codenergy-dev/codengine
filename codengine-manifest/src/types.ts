@@ -41,3 +41,73 @@ export interface ResolvedModule {
   /** Absolute Python interpreter for `py` (explicit or `<root>/.venv`), if any. */
   python?: string;
 }
+
+// --- Module package format (mirror of package.schema.json / bundle.schema.json) ---
+
+/** One artifact of a module package: source or compiled code, bound to a transport.
+ * `transport` and `target` are open strings so new transports/targets need no format
+ * bump (known transports: "in-process", "subprocess", "remote", "wasm", "cffi"). */
+export interface PackageArtifact {
+  id: string;
+  target: string;
+  transport: string;
+  language?: Language;
+  files?: string[];
+  root?: string;
+  /** Transport-specific reach info (e.g. subprocess: { command, args?, protocol }). */
+  entry: Record<string, unknown>;
+  integrity?: { sha256?: Record<string, string> };
+}
+
+export interface PackageDependency {
+  name: string;
+  version: string;
+}
+
+/** A portable, source-free distributable of one module. */
+export interface ModulePackage {
+  package: "1";
+  contract: "1";
+  kind: "module";
+  name: string;
+  version: string;
+  language: Language;
+  description?: string;
+  provenance?: { builtAt?: string; sourceHash?: string; tool?: string };
+  /** Relative path to the task-definition document (the description contract). */
+  definitions: string;
+  dependencies?: PackageDependency[];
+  artifacts: PackageArtifact[];
+}
+
+export interface BundleModuleRef {
+  /** The module namespace, as referenced by the workflows. */
+  name: string;
+  /** The module package coordinate ("name@version") or a relative path. */
+  package: string;
+}
+
+/** The orchestrator topology: references module packages + workflows, no own source. */
+export interface Bundle {
+  package: "1";
+  contract: "1";
+  kind: "bundle";
+  name: string;
+  version?: string;
+  workflows?: string[];
+  modules?: BundleModuleRef[];
+}
+
+export interface LoadedPackage {
+  package: ModulePackage;
+  /** Absolute path to the package descriptor file. */
+  path: string;
+  /** Absolute directory containing the package (its self-contained root). */
+  dir: string;
+}
+
+export interface LoadedBundle {
+  bundle: Bundle;
+  path: string;
+  dir: string;
+}

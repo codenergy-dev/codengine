@@ -1,0 +1,16 @@
+{
+  "version": "1",
+  "language": "py",
+  "definitions": [
+    {
+      "name": "greet",
+      "params": [{ "name": "name", "kind": "any", "required": true, "nullable": false }],
+      "acceptsExtra": false
+    },
+    {
+      "name": "output",
+      "params": [{ "name": "message", "kind": "any", "required": true, "nullable": false }],
+      "acceptsExtra": false
+    }
+  ]
+}

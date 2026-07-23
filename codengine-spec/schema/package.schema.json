@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codenergy.dev/codengine/schema/package.schema.json",
+  "title": "codengine module package",
+  "description": "A portable, source-free distributable of one module: its description contract (task definitions) plus one or more artifacts (source or compiled), each bound to a transport. The build output of a manifest's module. Consumed by a loader at run-time. Version 1.",
+  "type": "object",
+  "required": ["package", "contract", "kind", "name", "version", "language", "definitions", "artifacts"],
+  "additionalProperties": false,
+  "properties": {
+    "package": { "description": "Package format version.", "const": "1" },
+    "contract": { "description": "codengine IR / task-definition contract version.", "const": "1" },
+    "kind": { "description": "Discriminates a module package from a bundle.", "const": "module" },
+    "name": { "description": "The module namespace this package provides.", "type": "string", "minLength": 1 },
+    "version": { "description": "Package version (semver recommended).", "type": "string", "minLength": 1 },
+    "language": {
+      "description": "Language of this module's functions.",
+      "type": "string",
+      "enum": ["ts", "py", "dart", "cs"]
+    },
+    "description": { "type": "string" },
+    "provenance": {
+      "description": "How the package was built (for reproducibility and supply-chain review).",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "builtAt": { "type": "string", "format": "date-time" },
+        "sourceHash": { "type": "string" },
+        "tool": { "type": "string" }
+      }
+    },
+    "definitions": {
+      "description": "Relative path to the description contract (a task-definition document, see task-definition.schema.json).",
+      "type": "string",
+      "minLength": 1
+    },
+    "dependencies": {
+      "description": "Other module packages this one requires.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "version"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "version": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "artifacts": {
+      "description": "One entry per target/ABI. A run-time consumer picks the artifact whose transport its environment supports.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/artifact" }
+    }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "required": ["id", "target", "transport", "entry"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "description": "Unique id within the package.", "type": "string", "minLength": 1 },
+        "target": {
+          "description": "Deployment target: \"any\", \"wasm\", or a platform id (e.g. \"darwin-arm64\"). Open string.",
+          "type": "string",
+          "minLength": 1
+        },
+        "transport": {
+          "description": "The transport that can drive this artifact. Open string; known values: \"in-process\", \"subprocess\", \"remote\", \"wasm\", \"cffi\".",
+          "type": "string",
+          "minLength": 1
+        },
+        "language": {
+          "description": "Language of this artifact, if it differs from the package (e.g. a cross-compiled form). Defaults to the package language.",
+          "type": "string",
+          "enum": ["ts", "py", "dart", "cs"]
+        },
+        "files": {
+          "description": "Relative paths to the artifact's files (source or binaries). Required for local transports; omitted for a purely remote artifact.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "root": {
+          "description": "The artifact's dependency environment inside the package (relative path).",
+          "type": "string"
+        },
+        "entry": {
+          "description": "How the executor reaches the functions. Transport-specific; e.g. subprocess: { command, args?, protocol }; remote: { url, protocol }; wasm: { exports, abi }.",
+          "type": "object"
+        },
+        "integrity": {
+          "description": "Per-file content hashes for verification.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sha256": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

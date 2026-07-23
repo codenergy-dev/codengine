@@ -68,9 +68,9 @@ per language: core, analyzer, loader, runner, and optionally generator).
 
 | Module | Role | Language |
 |--------|------|----------|
-| `codengine-spec` | IR + task-definition + manifest schemas, execution & invocation semantics, conformance suites. No runtime code — the source of truth. | Language-neutral (JSON + Markdown) |
+| `codengine-spec` | IR + task-definition + manifest + **package/bundle** schemas, execution & invocation semantics, the packaging model (`packaging.md`), conformance suites. No runtime code — the source of truth. | Language-neutral (JSON + Markdown) |
 | `codengine-parser` | Diagram syntax → IR (includes the planner). Library + CLI. | TypeScript |
-| `codengine-manifest` | Load/validate/resolve the manifest (`codengine.json`, incl. module `root`/environment). Library. | TypeScript |
+| `codengine-manifest` | Load/validate/resolve the manifest (`codengine.json`, incl. module `root`/environment); load/validate **module packages and bundles**. Library. | TypeScript |
 | `codengine-cli` | Standalone orchestrator: parse + resolve + run through a language runner. | TypeScript |
 | `codengine-language-server` | Editing-time assembly: parser + analyzers + manifest → LSP features. Multi-project. *(planned)* | TypeScript |
 | `codengine-vscode` | Thin LSP client for the language server. *(planned)* | TypeScript |
@@ -133,7 +133,9 @@ the task functions that the runners bind — two views of the same functions.
   (English). Plans record *what*, *why*, and *how* — a living history of
   decisions. Filename: `NNNN-short-slug.md`. Keep a `Status:` line
   (`draft` / `in progress` / `done`) at the top.
-- **README.md** is the human-friendly documentation and is kept up to date.
+- **README.md** is the human-friendly documentation and is kept up to date. It
+  carries the **roadmap** (done vs planned) — keep that roadmap current: when a plan
+  lands (or a new direction is agreed), update the README roadmap in the same change.
 - **This file (AGENTS.md)** is kept up to date so any agent can follow project
   standards.
 

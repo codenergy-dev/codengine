@@ -1,0 +1,32 @@
+{
+  "version": "1",
+  "workflow": "greeting",
+  "tasks": [
+    {
+      "name": "greet",
+      "function": "greet",
+      "module": "greeting",
+      "args": {},
+      "fanIn": [],
+      "fanInNullable": [],
+      "fanOut": ["output"],
+      "routes": [],
+      "entrypoint": true,
+      "dependencies": [],
+      "executionPlan": ["greet", "output"]
+    },
+    {
+      "name": "output",
+      "function": "output",
+      "module": "greeting",
+      "args": {},
+      "fanIn": ["greet"],
+      "fanInNullable": [],
+      "fanOut": [],
+      "routes": [],
+      "entrypoint": false,
+      "dependencies": ["greet"],
+      "executionPlan": ["output"]
+    }
+  ]
+}

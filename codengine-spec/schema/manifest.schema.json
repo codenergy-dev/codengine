@@ -31,7 +31,7 @@
         "language": {
           "description": "Language of this module's functions.",
           "type": "string",
-          "enum": ["ts", "py"]
+          "enum": ["ts", "py", "dart", "cs"]
         },
         "functions": {
           "description": "Glob pattern(s) for the functions source, resolved against the manifest dir or absolute; may point outside the project. A module's functions are the union loaded from every matched file.",

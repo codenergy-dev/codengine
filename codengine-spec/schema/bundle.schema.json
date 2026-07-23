@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codenergy.dev/codengine/schema/bundle.schema.json",
+  "title": "codengine bundle",
+  "description": "The orchestrator topology: a descriptor that references module packages and workflows, with no source of its own. The portable, resolved equivalent of a manifest. Version 1.",
+  "type": "object",
+  "required": ["package", "contract", "kind", "name"],
+  "additionalProperties": false,
+  "properties": {
+    "package": { "description": "Package format version.", "const": "1" },
+    "contract": { "description": "codengine IR / task-definition contract version.", "const": "1" },
+    "kind": { "description": "Discriminates a bundle from a module package.", "const": "bundle" },
+    "name": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "workflows": {
+      "description": "Relative paths to workflow IR documents (see workflow.schema.json).",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "modules": {
+      "description": "Module namespace -> the module package that provides it.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "package"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "description": "The module namespace, as referenced by the workflows.", "type": "string", "minLength": 1 },
+          "package": { "description": "The module package coordinate (\"name@version\") or a relative path to it.", "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "anyOf": [
+    { "required": ["modules"] },
+    { "required": ["workflows"] }
+  ]
+}
