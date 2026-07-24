@@ -17,4 +17,13 @@ Protocol — one JSON request/response per line over stdio:
     -> { "result": …, "consumed": n }   # linear-segment optimization
 ```
 
+Two modes:
+
+- **stdio** (default) — the local `subprocess` transport (the orchestrator spawns it).
+- **HTTP** — the `remote` transport: `python -m codengine_worker --http PORT --config
+  worker.json` starts a long-running service that loads its modules at startup (from
+  `{ "modules": { "<name>": { "files": […], "root": … } } }`) and dispatches POSTed
+  requests through the same handler. Port `0` picks an ephemeral port, printed on the
+  first stdout line. (No auth/TLS yet — trusted networks only.)
+
 Depends on `codengine-core` + `codengine-loader`; never on the engine.

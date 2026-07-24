@@ -1,0 +1,7 @@
+{
+  "version": "1",
+  "workflows": ["*.yuml"],
+  "modules": {
+    "": { "language": "py", "transport": "remote", "url": "http://127.0.0.1:9999" }
+  }
+}

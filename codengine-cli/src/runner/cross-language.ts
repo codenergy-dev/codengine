@@ -82,27 +82,60 @@ class WorkerClient {
   }
 }
 
-// Route each task to its module's runtime: TS runs in-process (the orchestrator is
-// TS); a foreign module goes to its language's warm worker. All graph semantics stay
-// in the one engine — this only decides *where* a task's function runs.
+/** The orchestrator's view of a worker, regardless of transport. */
+interface Worker {
+  call(module: string, fn: string, input: TaskData): Promise<unknown>;
+  callChain(module: string, functions: string[], input: TaskData): Promise<ChainResult>;
+  close(): void;
+}
+
+/** A worker already running elsewhere, reached over HTTP (the `remote` transport). It
+ * owns its own code, so there is nothing to spawn, `load`, or `close`. */
+class RemoteWorkerClient implements Worker {
+  constructor(private readonly url: string) {}
+
+  private async send(body: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const response = await fetch(this.url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const json = (await response.json()) as Record<string, unknown>;
+    if (json.error !== undefined) throw new Error(String(json.error));
+    return json;
+  }
+
+  async call(module: string, fn: string, input: TaskData): Promise<unknown> {
+    return (await this.send({ op: "call", module, function: fn, input })).result;
+  }
+
+  async callChain(module: string, functions: string[], input: TaskData): Promise<ChainResult> {
+    const r = await this.send({ op: "callChain", module, functions, input });
+    return { result: r.result, consumed: r.consumed as number, input: r.input as TaskData };
+  }
+
+  close(): void {}
+}
+
+// Route each task to its module's runtime: a local TS module runs in-process (the
+// orchestrator is TS); any other module goes to its worker (a local subprocess worker,
+// or a remote one). All graph semantics stay in the one engine — this only decides
+// *where* a task's function runs.
 class RoutingExecutor implements Executor {
   constructor(
     private readonly tsFunctions: Record<string, FunctionMap>,
-    private readonly languageByModule: Record<string, string>,
-    private readonly workerByLanguage: Record<string, WorkerClient>,
+    private readonly workerByModule: Record<string, Worker>,
   ) {}
 
   async execute(module: string, fn: string, input: TaskData): Promise<unknown> {
-    const language = this.languageByModule[module];
-    if (language === "ts") return this.tsFunction(module, fn)(input);
-    return this.workerByLanguage[language].call(module, fn, input);
+    if (this.tsFunctions[module]) return this.tsFunction(module, fn)(input);
+    return this.workerByModule[module].call(module, fn, input);
   }
 
-  // Run a straight-line same-module segment in one call. Foreign modules use the
-  // worker's callChain (one boundary crossing); TS runs the chain in-process.
+  // Run a straight-line same-module segment in one call. A worker-backed module uses
+  // its callChain (one boundary crossing); a local TS module runs the chain in-process.
   async executeChain(module: string, functions: string[], input: TaskData): Promise<ChainResult> {
-    const language = this.languageByModule[module];
-    if (language !== "ts") return this.workerByLanguage[language].callChain(module, functions, input);
+    if (!this.tsFunctions[module]) return this.workerByModule[module].callChain(module, functions, input);
 
     let data: unknown = input;
     let result: unknown = data;
@@ -200,10 +233,11 @@ async function spawnWorker(
 }
 
 /**
- * Run a workflow whose modules span several languages: TS in-process, each other
- * language via a warm persistent worker, all driven by the one TS engine.
+ * Run a workflow whose modules are not all one local language: a local TS module runs
+ * in-process, a local foreign module via a warm subprocess worker, a remote module via
+ * HTTP — all driven by the one TS engine.
  */
-export async function runCrossLanguage(
+export async function runRouted(
   workflows: WorkflowIR[],
   resolved: ResolvedModule[],
   entry: string,
@@ -211,33 +245,45 @@ export async function runCrossLanguage(
   pythonOverride?: string,
 ): Promise<TaskData[] | null> {
   const tsFunctions: Record<string, FunctionMap> = {};
-  const languageByModule: Record<string, string> = {};
-  const workerByLanguage: Record<string, WorkerClient> = {};
+  const workerByModule: Record<string, Worker> = {};
+  const closers: Worker[] = [];
 
   try {
-    // TS runs in-process; every other language is grouped so its worker starts once
-    // with all of that language's modules (Dart bakes them into the glue).
-    const foreign = new Map<string, ResolvedModule[]>();
+    // Local TS runs in-process; local foreign modules are grouped so each language's
+    // worker starts once (Dart bakes them into the glue); a remote module reuses one
+    // client per URL.
+    const localForeign = new Map<string, ResolvedModule[]>();
+    const remoteByUrl = new Map<string, RemoteWorkerClient>();
     for (const module of resolved) {
-      languageByModule[module.name] = module.language;
-      if (module.language === "ts") {
+      if (module.transport === "remote") {
+        let client = remoteByUrl.get(module.url!);
+        if (!client) {
+          client = new RemoteWorkerClient(module.url!);
+          remoteByUrl.set(module.url!, client);
+          closers.push(client);
+        }
+        workerByModule[module.name] = client;
+      } else if (module.language === "ts") {
         tsFunctions[module.name] = await loadFunctions(module.files);
       } else {
-        const group = foreign.get(module.language) ?? [];
+        const group = localForeign.get(module.language) ?? [];
         group.push(module);
-        foreign.set(module.language, group);
+        localForeign.set(module.language, group);
       }
     }
 
-    for (const [language, modules] of foreign) {
+    for (const [language, modules] of localForeign) {
       const worker = await spawnWorker(language, modules, pythonOverride);
-      workerByLanguage[language] = worker;
-      for (const module of modules) await worker.load(module.name, module.files, module.root);
+      closers.push(worker);
+      for (const module of modules) {
+        await worker.load(module.name, module.files, module.root);
+        workerByModule[module.name] = worker;
+      }
     }
 
-    const executor = new RoutingExecutor(tsFunctions, languageByModule, workerByLanguage);
+    const executor = new RoutingExecutor(tsFunctions, workerByModule);
     return await run(workflows, executor, entry, input);
   } finally {
-    for (const worker of Object.values(workerByLanguage)) worker.close();
+    for (const worker of closers) worker.close();
   }
 }

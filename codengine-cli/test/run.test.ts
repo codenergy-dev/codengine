@@ -4,7 +4,9 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import { loadFunctions, runWorkflow } from "../src/index.js";
@@ -177,6 +179,51 @@ test("runs a cross-language workflow (TS engine + Dart worker)", { skip: !exists
     input: { name: "Cross" },
   });
   assert.deepStrictEqual(result, [{ message: "Hello, Cross!" }]);
+});
+
+// Remote transport: the module is served by a Python worker already running as an
+// HTTP service (deployed with its own code). The orchestrator calls it by name over
+// the network — no local files, no spawn (plan 0020).
+const remotePyDir = join(fixtures, "remote-python");
+function startRemoteWorker(): Promise<{ url: string; stop: () => void }> {
+  return new Promise((resolvePromise, reject) => {
+    const proc = spawn(
+      pyPython,
+      ["-m", "codengine_worker", "--http", "0", "--config", "worker-config.json"],
+      { cwd: remotePyDir, stdio: ["ignore", "pipe", "inherit"] },
+    );
+    proc.on("error", reject);
+    proc.stdout.setEncoding("utf8");
+    let buffer = "";
+    proc.stdout.on("data", (chunk: string) => {
+      buffer += chunk;
+      const newline = buffer.indexOf("\n");
+      if (newline >= 0) {
+        const port = Number(buffer.slice(0, newline).trim());
+        resolvePromise({ url: `http://127.0.0.1:${port}`, stop: () => proc.kill() });
+      }
+    });
+  });
+}
+test("runs a workflow served by a remote Python worker (HTTP transport)", { skip: !existsSync(pyPython) }, async () => {
+  const worker = await startRemoteWorker();
+  const dir = mkdtempSync(join(tmpdir(), "codengine-remote-"));
+  try {
+    const manifestPath = join(dir, "codengine.json");
+    writeFileSync(
+      manifestPath,
+      JSON.stringify({
+        version: "1",
+        workflows: [join(remotePyDir, "greeting.yuml")],
+        modules: { "": { language: "py", transport: "remote", url: worker.url } },
+      }),
+    );
+    const result = await runWorkflow({ manifest: manifestPath, entry: "greet", input: { name: "Remote" } });
+    assert.deepStrictEqual(result, [{ message: "Hello, Remote!" }]);
+  } finally {
+    worker.stop();
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 // End-to-end C# (a compiled language *with* reflection): the user writes plain public

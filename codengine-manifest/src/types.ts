@@ -2,16 +2,26 @@
 
 export type Language = "ts" | "py" | "dart" | "cs";
 
+/** How the orchestrator reaches a module's functions: a local worker/in-process, or
+ * a worker already running elsewhere (referenced by URL). */
+export type Transport = "local" | "remote";
+
 export interface ModuleConfig {
   language: Language;
+  /** Reach: `local` (default) or `remote` (a running worker at `url`). */
+  transport?: Transport;
+  /** For `transport: "remote"`: the worker's base URL. The service owns its own code,
+   * so `functions`/`root` are not sent to it. */
+  url?: string;
   /**
    * The module's project root (its dependency environment). Local dir, relative to
    * the manifest or absolute; may point outside the project. Functions globs resolve
    * against it. When omitted, it is auto-detected from the functions' location.
    */
   root?: string;
-  /** Glob pattern(s) for the functions source, relative to `root` (or the manifest dir). */
-  functions: string | string[];
+  /** Glob pattern(s) for the functions source, relative to `root` (or the manifest
+   * dir). Required for a local module; ignored for a remote one. */
+  functions?: string | string[];
   /** Python interpreter for `language: "py"`; relative to `root`, or absolute. */
   python?: string;
 }
@@ -34,9 +44,13 @@ export interface LoadedManifest {
 export interface ResolvedModule {
   name: string;
   language: Language;
-  /** Absolute project root — the module's dependency environment. */
+  /** `local` (files/root apply) or `remote` (reached at `url`). */
+  transport: Transport;
+  /** For `transport: "remote"`: the worker's base URL. */
+  url?: string;
+  /** Absolute project root — the module's dependency environment (local only). */
   root: string;
-  /** Absolute paths to the functions source files (globs expanded). */
+  /** Absolute paths to the functions source files (local only; empty for remote). */
   files: string[];
   /** Absolute Python interpreter for `py` (explicit or `<root>/.venv`), if any. */
   python?: string;

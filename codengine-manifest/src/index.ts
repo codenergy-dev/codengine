@@ -1,5 +1,6 @@
 export type {
   Language,
+  Transport,
   Manifest,
   ModuleConfig,
   LoadedManifest,

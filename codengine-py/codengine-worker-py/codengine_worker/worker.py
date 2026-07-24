@@ -17,6 +17,7 @@ Requests (each may carry an "id", echoed back):
 
 import json
 import sys
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import IO
 
 from codengine_core import ModuleFunctions
@@ -63,6 +64,31 @@ def _handle(modules: ModuleFunctions, request: dict) -> dict:
         return {"error": f"Unknown op '{op}'."}
     except Exception as error:  # noqa: BLE001 - report any failure over the protocol
         return {"error": str(error)}
+
+
+def serve_http(modules: ModuleFunctions, port: int = 0) -> None:
+    """Serve the same requests over HTTP (the `remote` transport). The modules are
+    already loaded (this service owns its code); each POST body is one request. Prints
+    the bound port on the first stdout line, so a caller can use an ephemeral port.
+    """
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self) -> None:
+            length = int(self.headers.get("content-length", 0))
+            request = json.loads(self.rfile.read(length).decode("utf-8"))
+            body = json.dumps(_handle(modules, request)).encode("utf-8")
+            self.send_response(200)
+            self.send_header("content-type", "application/json")
+            self.send_header("content-length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args: object) -> None:  # keep stdout clean
+            pass
+
+    server = HTTPServer(("127.0.0.1", port), Handler)
+    print(server.server_address[1], flush=True)
+    server.serve_forever()
 
 
 def _resolve(modules: ModuleFunctions, module: str, function: str):

@@ -25,7 +25,7 @@
   "$defs": {
     "module": {
       "type": "object",
-      "required": ["language", "functions"],
+      "required": ["language"],
       "additionalProperties": false,
       "properties": {
         "language": {
@@ -33,18 +33,34 @@
           "type": "string",
           "enum": ["ts", "py", "dart", "cs"]
         },
+        "transport": {
+          "description": "How the orchestrator reaches the module: \"local\" (default) runs a worker/in-process; \"remote\" calls a worker already running at `url`.",
+          "type": "string",
+          "enum": ["local", "remote"]
+        },
+        "url": {
+          "description": "For transport \"remote\": the running worker's base URL. The service owns its own code, so `functions`/`root` are not sent to it.",
+          "type": "string"
+        },
         "functions": {
-          "description": "Glob pattern(s) for the functions source, resolved against the manifest dir or absolute; may point outside the project. A module's functions are the union loaded from every matched file.",
+          "description": "Glob pattern(s) for the functions source, resolved against the root or the manifest dir. Required for a local module; ignored for a remote one.",
           "oneOf": [
             { "type": "string", "minLength": 1 },
             { "type": "array", "items": { "type": "string", "minLength": 1 } }
           ]
         },
+        "root": {
+          "description": "The module's project root (its dependency environment), relative to the manifest or absolute. Auto-detected when omitted. Local only.",
+          "type": "string"
+        },
         "python": {
-          "description": "Python interpreter for language \"py\" (must have codengine-runner / codengine-analyzer available).",
+          "description": "Python interpreter for language \"py\" (must have codengine-runner / codengine-worker available).",
           "type": "string"
         }
-      }
+      },
+      "if": { "properties": { "transport": { "const": "remote" } }, "required": ["transport"] },
+      "then": { "required": ["url"] },
+      "else": { "required": ["functions"] }
     }
   }
 }

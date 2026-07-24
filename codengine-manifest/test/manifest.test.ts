@@ -69,3 +69,21 @@ test("rejects an invalid manifest", () => {
   const bad = resolve(fixtures, "invalid-version", "codengine.json");
   assert.throws(() => loadManifest(bad), /version must be/);
 });
+
+test("resolves a remote module to its transport + url (no local files)", () => {
+  const loaded = loadManifest(resolve(fixtures, "remote", "codengine.json"));
+  const resolved = resolveModule(loaded, null);
+  assert.equal(resolved.transport, "remote");
+  assert.equal(resolved.url, "http://127.0.0.1:9999");
+  assert.deepEqual(resolved.files, []);
+});
+
+test("a local module is marked transport: local", () => {
+  const loaded = loadManifest(project);
+  assert.equal(resolveModule(loaded, null).transport, "local");
+});
+
+test("rejects a remote module without a url", () => {
+  const bad = resolve(fixtures, "remote-no-url", "codengine.json");
+  assert.throws(() => loadManifest(bad), /needs a `url`/);
+});

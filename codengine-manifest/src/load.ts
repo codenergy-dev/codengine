@@ -85,9 +85,14 @@ export function resolveModule(loaded: LoadedManifest, moduleName: string | null)
     throw new Error(`Manifest '${loaded.path}' has no module ${label}.`);
   }
 
+  // A remote module is reached at its URL; no local files/root/environment apply.
+  if (config.transport === "remote") {
+    return { name, language: config.language, transport: "remote", url: config.url, root: loaded.dir, files: [] };
+  }
+
   // Functions globs resolve against the explicit root, else the manifest dir.
   const globBase = config.root ? resolve(loaded.dir, config.root) : loaded.dir;
-  const patterns = Array.isArray(config.functions) ? config.functions : [config.functions];
+  const patterns = Array.isArray(config.functions) ? config.functions : [config.functions ?? []].flat();
   const files = resolveFunctionFiles(patterns, globBase);
 
   // The environment: explicit root, else auto-detected from the files, else the base.
@@ -104,6 +109,7 @@ export function resolveModule(loaded: LoadedManifest, moduleName: string | null)
   return {
     name,
     language: config.language,
+    transport: "local",
     root,
     files,
     ...(python !== undefined ? { python } : {}),
@@ -148,7 +154,15 @@ function validate(value: unknown, path: string): Manifest {
     if (!LANGUAGES.includes(module.language as Language)) {
       fail(`module '${name}' has invalid language (expected one of ${LANGUAGES.join(", ")})`);
     }
-    if (!isFunctions(module.functions)) {
+    const isRemote = module.transport === "remote";
+    if (module.transport !== undefined && module.transport !== "local" && module.transport !== "remote") {
+      fail(`module '${name}' \`transport\` must be "local" or "remote"`);
+    }
+    if (isRemote) {
+      if (typeof module.url !== "string" || module.url.length === 0) {
+        fail(`module '${name}' with \`transport: "remote"\` needs a \`url\` string`);
+      }
+    } else if (!isFunctions(module.functions)) {
       fail(`module '${name}' \`functions\` must be a non-empty glob string or array of strings`);
     }
     if (module.python !== undefined && typeof module.python !== "string") {
@@ -159,7 +173,9 @@ function validate(value: unknown, path: string): Manifest {
     }
     modules[name] = {
       language: module.language as Language,
-      functions: module.functions as string | string[],
+      ...(isRemote
+        ? { transport: "remote" as const, url: module.url as string }
+        : { functions: module.functions as string | string[] }),
       ...(module.root !== undefined ? { root: module.root as string } : {}),
       ...(module.python !== undefined ? { python: module.python as string } : {}),
     };

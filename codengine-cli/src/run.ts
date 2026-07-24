@@ -11,7 +11,7 @@ import type { LoadedManifest } from "codengine-manifest";
 import { parseWorkflow } from "codengine-parser";
 import type { TaskData, WorkflowIR } from "codengine-core-ts";
 import { selectRunner } from "./runner/select.js";
-import { runCrossLanguage } from "./runner/cross-language.js";
+import { runRouted } from "./runner/cross-language.js";
 import type { Language, ModuleBinding } from "./runner/types.js";
 
 export interface RunWorkflowOptions {
@@ -43,13 +43,15 @@ export async function runWorkflow(options: RunWorkflowOptions): Promise<TaskData
   const workflows = loadWorkflows(options, manifest);
   const entry = options.entry ?? soleEntrypoint(workflows);
 
-  // Cross-language: a manifest whose modules span several languages. One TS engine
-  // drives; TS modules run in-process, each other language via a warm worker.
+  // Anything that isn't a single local language routes through the TS engine: local TS
+  // in-process, a local foreign module via a warm worker, a remote module via HTTP.
   if (!options.functions && manifest) {
     const resolved = resolveModules(manifest);
-    const languages = [...new Set(resolved.map((module) => module.language))];
-    if (languages.length > 1) {
-      return runCrossLanguage(workflows, resolved, entry, options.input ?? {}, options.python);
+    const languages = new Set(resolved.map((module) => module.language));
+    const allLocalSingleLanguage =
+      languages.size === 1 && resolved.every((module) => module.transport === "local");
+    if (!allLocalSingleLanguage) {
+      return runRouted(workflows, resolved, entry, options.input ?? {}, options.python);
     }
   }
 

@@ -115,16 +115,24 @@ Done so far:
 - [x] **Module package format** — portable, source-free distribution of a module
   ([`packaging.md`](codengine-spec/packaging.md)).
 - [x] **Cross-language on the server** — one authoritative **engine** drives; a task
-  in another language runs in that language's **warm worker** over a transport
-  (subprocess). Split engine/executor + a linear-segment batching optimization
+  in another language runs in that language's **warm worker** over a transport. Split
+  engine/executor + a linear-segment batching optimization
   ([plan 0017](plans/0017-cross-language-execution.md)). A TS engine can call a
   **Python, C#, or Dart** worker ([plan 0018](plans/0018-dart-cs-workers.md)); the
   Dart worker is generated glue (Dart AOT has no reflection).
+- [x] **Remote transport (HTTP)** — a module can be a worker **already running as a
+  service** anywhere; the manifest marks it `transport: "remote"` + a `url`, and the
+  orchestrator calls it over the network ([plan 0020](plans/0020-remote-transport.md)).
+  Proven with the Python worker's HTTP mode.
+- [x] **Async task functions** — a user's function may be sync or async, in every
+  language ([plan 0019](plans/0019-async-user-functions.md)).
 
 Next / planned:
 
-- [ ] **A remote transport + non-TS orchestrators** — a `remote` (HTTP/gRPC)
-  transport so a module can live anywhere; an engine hosted in another language.
+- [ ] **HTTP mode for the other workers + auth** — the TS/Dart/C# HTTP servers (same
+  mold as Python); authentication + TLS before a remote worker is exposed publicly.
+- [ ] **Non-TS orchestrators** — the engine + transports hosted in another language,
+  so a native app (game, mobile, server) can drive a cross-language run in-process.
 - [ ] **Package builder + loaders** — build a package from a manifest; load/run a
   package through a transport.
 - [ ] **Browser / WASM** — run workflows where processes aren't available.

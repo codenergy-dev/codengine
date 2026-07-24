@@ -120,12 +120,14 @@ core  ←  worker        (loader + a request loop; optional)
 | `codengine-core-cs` / `codengine-analyzer-cs` / `codengine-loader-cs` / `codengine-runner-cs` / `codengine-worker-cs` | core / analyze / load / run / work | `codengine-cs/` |
 
 **Cross-language** (server): one **engine** (TS) drives; a task in another language
-runs in that language's **warm worker** via a transport (subprocess now, `remote`
-planned). All four languages have a worker. A reflective worker (`py`, `cs`) loads the
-module directly; a reflection-less one (`dart`) is **generated glue** — the generator
-writes a worker that bakes the functions in, then `serve(...)`s them. The planner-level
-graph partitioning was rejected in favour of one authoritative engine + a
-linear-segment batching optimization (see plans 0017, 0018).
+runs in that language's **warm worker** via a **transport**. Two transports exist:
+**subprocess** (spawn a local worker, stdio) and **remote** (HTTP — a worker already
+running as a service that owns its own code; the module declares
+`transport: "remote"` + `url`, and no files are sent over the wire). All four languages
+have a worker; a reflective worker (`py`, `cs`) loads the module directly, a
+reflection-less one (`dart`) is **generated glue**. The planner-level graph
+partitioning was rejected in favour of one authoritative engine + a linear-segment
+batching optimization (see plans 0017, 0018, 0020).
 
 The **generator** is about *reflection, not compilation*. Dart (AOT, no reflection)
 is the only family with all five roles — its generator writes glue with named-binding
