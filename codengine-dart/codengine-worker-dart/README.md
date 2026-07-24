@@ -17,4 +17,8 @@ acknowledgement.
     -> { "result": …, "consumed": n, "input": {…} }
 ```
 
+The generated glue's `main` serves **stdio** by default (the `subprocess` transport)
+or **HTTP** with `--http PORT` (the `remote` transport, via `dart:io` `HttpServer`;
+port `0` prints the chosen port). The functions are baked in, so no `--config`.
+
 Depends on `codengine_core`; never on the engine.

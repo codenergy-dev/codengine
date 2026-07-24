@@ -123,14 +123,14 @@ Done so far:
 - [x] **Remote transport (HTTP)** — a module can be a worker **already running as a
   service** anywhere; the manifest marks it `transport: "remote"` + a `url`, and the
   orchestrator calls it over the network ([plan 0020](plans/0020-remote-transport.md)).
-  Proven with the Python worker's HTTP mode.
+  **All four workers** (Python, TS, C#, Dart) serve HTTP.
 - [x] **Async task functions** — a user's function may be sync or async, in every
   language ([plan 0019](plans/0019-async-user-functions.md)).
 
 Next / planned:
 
-- [ ] **HTTP mode for the other workers + auth** — the TS/Dart/C# HTTP servers (same
-  mold as Python); authentication + TLS before a remote worker is exposed publicly.
+- [ ] **Auth for remote workers** — authentication + TLS before a remote worker is
+  exposed beyond a trusted network.
 - [ ] **Non-TS orchestrators** — the engine + transports hosted in another language,
   so a native app (game, mobile, server) can drive a cross-language run in-process.
 - [ ] **Package builder + loaders** — build a package from a manifest; load/run a

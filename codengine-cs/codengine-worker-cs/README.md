@@ -19,5 +19,9 @@ Line-delimited JSON over stdio:
     -> { "result": …, "consumed": n, "input": {…} }
 ```
 
+Two modes: **stdio** (default, the local `subprocess` transport) and **HTTP**
+(`dotnet codengine-worker-cs.dll --http PORT --config worker.json`, the `remote`
+transport, via `HttpListener`; port `0` prints the chosen port).
+
 BCL only; ProjectReferences `codengine-core-cs` + `codengine-loader-cs`, never the
 engine. The orchestrator finds it via `CODENGINE_WORKER_CS_DLL` or the build output.

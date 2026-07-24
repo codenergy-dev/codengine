@@ -8,6 +8,8 @@
 //   { "op": "callChain", "module": str, "functions": [str], "input": object }
 //        -> { "result": any, "consumed": int, "input": object }
 
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using Codengine.Core;
@@ -16,6 +18,16 @@ using Codengine.Loader;
 using TaskData = System.Collections.Generic.Dictionary<string, object?>;
 
 var modules = new Dictionary<string, Dictionary<string, TaskFunction>>();
+
+// --http PORT --config FILE: serve over HTTP (the `remote` transport). The config is
+// { "modules": { "<name>": { "files": [...], "root": ... } } }, loaded once at startup.
+if (args.Contains("--http"))
+{
+    int port = int.Parse(args[Array.IndexOf(args, "--http") + 1]);
+    LoadModulesFromConfig(modules, args[Array.IndexOf(args, "--config") + 1]);
+    ServeHttp(modules, port);
+    return;
+}
 
 string? line;
 while ((line = Console.In.ReadLine()) is not null)
@@ -34,6 +46,58 @@ while ((line = Console.In.ReadLine()) is not null)
     Console.Out.Write(response);
     Console.Out.Write('\n');
     Console.Out.Flush();
+}
+
+static void LoadModulesFromConfig(Dictionary<string, Dictionary<string, TaskFunction>> modules, string path)
+{
+    using var document = JsonDocument.Parse(File.ReadAllText(path));
+    foreach (var module in document.RootElement.GetProperty("modules").EnumerateObject())
+    {
+        var files = module.Value.GetProperty("files").EnumerateArray().Select(f => f.GetString()!).ToList();
+        string? root = module.Value.TryGetProperty("root", out var r) && r.ValueKind == JsonValueKind.String
+            ? r.GetString()
+            : null;
+        modules[module.Name] = Loader.LoadModule(files, root);
+    }
+}
+
+// Serve the same requests over HTTP. Prints the bound port on the first stdout line.
+static void ServeHttp(Dictionary<string, Dictionary<string, TaskFunction>> modules, int port)
+{
+    if (port == 0)
+    {
+        var probe = new TcpListener(IPAddress.Loopback, 0);
+        probe.Start();
+        port = ((IPEndPoint)probe.LocalEndpoint).Port;
+        probe.Stop();
+    }
+    var listener = new HttpListener();
+    listener.Prefixes.Add($"http://127.0.0.1:{port}/");
+    listener.Start();
+    Console.Out.WriteLine(port);
+    Console.Out.Flush();
+
+    while (true)
+    {
+        var context = listener.GetContext();
+        using var reader = new StreamReader(context.Request.InputStream, context.Request.ContentEncoding);
+        string body = reader.ReadToEnd();
+        string responseText;
+        try
+        {
+            using var document = JsonDocument.Parse(body);
+            responseText = Handle(modules, document.RootElement);
+        }
+        catch (Exception error)
+        {
+            responseText = Failure(Unwrap(error));
+        }
+        var buffer = Encoding.UTF8.GetBytes(responseText);
+        context.Response.ContentType = "application/json";
+        context.Response.ContentLength64 = buffer.Length;
+        context.Response.OutputStream.Write(buffer, 0, buffer.Length);
+        context.Response.OutputStream.Close();
+    }
 }
 
 static string Handle(Dictionary<string, Dictionary<string, TaskFunction>> modules, JsonElement request)

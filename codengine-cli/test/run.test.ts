@@ -181,17 +181,14 @@ test("runs a cross-language workflow (TS engine + Dart worker)", { skip: !exists
   assert.deepStrictEqual(result, [{ message: "Hello, Cross!" }]);
 });
 
-// Remote transport: the module is served by a Python worker already running as an
+// Remote transport (plan 0020): the module is served by a worker already running as an
 // HTTP service (deployed with its own code). The orchestrator calls it by name over
-// the network — no local files, no spawn (plan 0020).
-const remotePyDir = join(fixtures, "remote-python");
-function startRemoteWorker(): Promise<{ url: string; stop: () => void }> {
+// the network — no local files, no spawn. Proven for every language's worker.
+
+// Start a worker in HTTP mode; resolve once it prints its bound (ephemeral) port.
+function startHttpWorker(command: string, args: string[], cwd: string): Promise<{ url: string; stop: () => void }> {
   return new Promise((resolvePromise, reject) => {
-    const proc = spawn(
-      pyPython,
-      ["-m", "codengine_worker", "--http", "0", "--config", "worker-config.json"],
-      { cwd: remotePyDir, stdio: ["ignore", "pipe", "inherit"] },
-    );
+    const proc = spawn(command, args, { cwd, stdio: ["ignore", "pipe", "inherit"] });
     proc.on("error", reject);
     proc.stdout.setEncoding("utf8");
     let buffer = "";
@@ -205,24 +202,81 @@ function startRemoteWorker(): Promise<{ url: string; stop: () => void }> {
     });
   });
 }
-test("runs a workflow served by a remote Python worker (HTTP transport)", { skip: !existsSync(pyPython) }, async () => {
-  const worker = await startRemoteWorker();
-  const dir = mkdtempSync(join(tmpdir(), "codengine-remote-"));
+
+// Run the fixture's greeting workflow against a remote worker, via a temp manifest that
+// marks the module `transport: "remote"`.
+async function runRemote(url: string, dir: string, language: string) {
+  const temp = mkdtempSync(join(tmpdir(), "codengine-remote-"));
   try {
-    const manifestPath = join(dir, "codengine.json");
+    const manifestPath = join(temp, "codengine.json");
     writeFileSync(
       manifestPath,
       JSON.stringify({
         version: "1",
-        workflows: [join(remotePyDir, "greeting.yuml")],
-        modules: { "": { language: "py", transport: "remote", url: worker.url } },
+        workflows: [join(dir, "greeting.yuml")],
+        modules: { "": { language, transport: "remote", url } },
       }),
     );
-    const result = await runWorkflow({ manifest: manifestPath, entry: "greet", input: { name: "Remote" } });
-    assert.deepStrictEqual(result, [{ message: "Hello, Remote!" }]);
+    return await runWorkflow({ manifest: manifestPath, entry: "greet", input: { name: "Remote" } });
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
+test("remote Python worker (HTTP)", { skip: !existsSync(pyPython) }, async () => {
+  const dir = join(fixtures, "remote-python");
+  const worker = await startHttpWorker(pyPython, ["-m", "codengine_worker", "--http", "0", "--config", "worker-config.json"], dir);
+  try {
+    assert.deepStrictEqual(await runRemote(worker.url, dir, "py"), [{ message: "Hello, Remote!" }]);
   } finally {
     worker.stop();
-    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+const workerTsCli = resolve(repo, "codengine-ts", "codengine-worker-ts", "dist", "src", "cli.js");
+test("remote TS worker (HTTP)", { skip: !existsSync(workerTsCli) }, async () => {
+  const dir = join(fixtures, "remote-ts");
+  const worker = await startHttpWorker("node", [workerTsCli, "--http", "0", "--config", "worker-config.json"], dir);
+  try {
+    assert.deepStrictEqual(await runRemote(worker.url, dir, "ts"), [{ message: "Hello, Remote!" }]);
+  } finally {
+    worker.stop();
+  }
+});
+
+const csWorkerHttpDll = ["Release", "Debug"]
+  .map((config) => resolve(repo, "codengine-cs", "codengine-worker-cs", "bin", config, "net10.0", "codengine-worker-cs.dll"))
+  .find((dll) => existsSync(dll));
+test("remote C# worker (HTTP)", { skip: !csWorkerHttpDll }, async () => {
+  const dir = join(fixtures, "remote-cs");
+  const worker = await startHttpWorker("dotnet", [csWorkerHttpDll!, "--http", "0", "--config", "worker-config.json"], dir);
+  try {
+    assert.deepStrictEqual(await runRemote(worker.url, dir, "cs"), [{ message: "Hello, Remote!" }]);
+  } finally {
+    worker.stop();
+  }
+});
+
+// Dart's worker is generated glue (no reflection): generate it, then run with --http.
+const remoteDartDir = join(fixtures, "remote-dart");
+function generateDartWorkerGlue(dir: string): Promise<string> {
+  return new Promise((resolvePromise, reject) => {
+    const proc = spawn("dart", ["run", "codengine_generator:worker"], { cwd: dir, stdio: ["pipe", "pipe", "inherit"] });
+    let out = "";
+    proc.stdout.setEncoding("utf8");
+    proc.stdout.on("data", (chunk: string) => (out += chunk));
+    proc.on("error", reject);
+    proc.on("close", (code) => (code === 0 ? resolvePromise(out.trim()) : reject(new Error("glue generation failed"))));
+    proc.stdin.end(JSON.stringify({ functions: { "": { files: [join(dir, "tasks.dart")], root: dir } } }));
+  });
+}
+test("remote Dart worker (HTTP)", { skip: !existsSync(join(remoteDartDir, ".dart_tool")) }, async () => {
+  const glue = await generateDartWorkerGlue(remoteDartDir);
+  const worker = await startHttpWorker("dart", ["run", glue, "--http", "0"], remoteDartDir);
+  try {
+    assert.deepStrictEqual(await runRemote(worker.url, remoteDartDir, "dart"), [{ message: "Hello, Remote!" }]);
+  } finally {
+    worker.stop();
   }
 });
 

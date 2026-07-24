@@ -59,7 +59,20 @@ TS/Dart/C# HTTP servers follow later in the same mold.
   language), so local-TS / local-foreign-worker / remote-worker compose in one run.
 - Security is deliberately deferred: no auth/TLS. The worker binds `127.0.0.1` and the
   docs state auth + TLS are required before public exposure.
-- Next: HTTP mode for the TS/Dart/C# workers (same mold), then non-TS orchestrators.
+- Next: non-TS orchestrators; auth/TLS for remote workers.
+
+### Addendum — HTTP mode for the other three workers
+
+All four workers now serve HTTP (same mold):
+
+- `worker-ts` — `node cli.js --http PORT --config worker.json` (`node:http`).
+- `worker-cs` — `dotnet …dll --http PORT --config worker.json` (`HttpListener`;
+  ephemeral port via a probe `TcpListener`).
+- `worker-dart` — the generated glue's `main` handles `--http PORT` (`dart:io`
+  `HttpServer`); functions are baked in, so no `--config`.
+
+Verified end-to-end through the CLI (a temp manifest marks the module remote):
+**CLI 20/20, 0 skipped** — a remote worker in each of Python, TS, C#, and Dart.
 
 ## Notes
 

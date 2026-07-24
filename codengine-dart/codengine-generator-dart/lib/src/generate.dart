@@ -80,10 +80,15 @@ import 'package:codengine_core/codengine_core.dart';
 import 'package:codengine_worker/codengine_worker.dart';
 import 'package:codengine_loader/codengine_loader.dart' show mergeFunctions;
 ${bindings.imports}
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   final functions = <String, Map<String, TaskFunction>>{
 ${bindings.entries}  };
-  await serve(functions);
+  // --http PORT serves over HTTP (the `remote` transport); otherwise stdio.
+  if (args.contains('--http')) {
+    await serveHttp(functions, int.parse(args[args.indexOf('--http') + 1]));
+  } else {
+    await serve(functions);
+  }
 }
 ''';
 }

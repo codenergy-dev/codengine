@@ -30,6 +30,21 @@ Future<void> serve(ModuleFunctions functions, {Stream<List<int>>? input, IOSink?
   }
 }
 
+/// Serve the same requests over HTTP (the `remote` transport). Prints the bound port
+/// on the first stdout line, so a caller can use an ephemeral port (`0`).
+Future<void> serveHttp(ModuleFunctions functions, int port) async {
+  final server = await HttpServer.bind(InternetAddress.loopbackIPv4, port);
+  stdout.writeln(server.port);
+  await for (final request in server) {
+    final body = await utf8.decoder.bind(request).join();
+    final response = await _handle(functions, (jsonDecode(body) as Map).cast<String, dynamic>());
+    request.response
+      ..headers.contentType = ContentType.json
+      ..write(jsonEncode(response));
+    await request.response.close();
+  }
+}
+
 Future<Map<String, dynamic>> _handle(ModuleFunctions functions, Map<String, dynamic> request) async {
   try {
     final op = request['op'] as String;

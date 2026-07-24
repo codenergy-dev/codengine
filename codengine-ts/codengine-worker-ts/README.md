@@ -15,4 +15,8 @@ Same line-delimited stdio protocol as [`codengine-worker-py`](../../codengine-py
     -> { "result": …, "consumed": n }
 ```
 
+Two modes: **stdio** (default, the local `subprocess` transport) and **HTTP**
+(`node cli.js --http PORT --config worker.json`, the `remote` transport — loads its
+modules at startup and serves POSTed requests; port `0` prints the chosen port).
+
 Depends on `codengine-core-ts` + `codengine-loader-ts`; never on the engine.

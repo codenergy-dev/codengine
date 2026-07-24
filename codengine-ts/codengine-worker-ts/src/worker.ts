@@ -3,11 +3,47 @@
 // the loader) and kept alive — the engine sends many cheap calls without reloading.
 // The worker does not know the graph; all branching stays in the one engine.
 
+import { readFileSync } from "node:fs";
+import { createServer } from "node:http";
 import { createInterface } from "node:readline";
 import { loadFunctions } from "codengine-loader-ts";
 import type { FunctionMap, TaskData, TaskFunction } from "codengine-core-ts";
 
 type Modules = Record<string, FunctionMap>;
+
+/** Serve the same requests over HTTP (the `remote` transport). The modules are already
+ * loaded (this service owns its code); each POST body is one request. Prints the bound
+ * port on the first stdout line, so a caller can use an ephemeral port. */
+export function serveHttp(modules: Modules, port: number): void {
+  const server = createServer((request, response) => {
+    let body = "";
+    request.setEncoding("utf8");
+    request.on("data", (chunk: string) => (body += chunk));
+    request.on("end", () => {
+      void (async () => {
+        const result = await handle(modules, JSON.parse(body) as Record<string, unknown>);
+        response.writeHead(200, { "content-type": "application/json" });
+        response.end(JSON.stringify(result));
+      })();
+    });
+  });
+  server.listen(port, "127.0.0.1", () => {
+    const address = server.address();
+    process.stdout.write(`${typeof address === "object" && address ? address.port : port}\n`);
+  });
+}
+
+/** Load the modules a service serves, from `{ modules: { <name>: { files, root } } }`. */
+export async function loadModulesFromConfig(configPath: string): Promise<Modules> {
+  const config = JSON.parse(readFileSync(configPath, "utf8")) as {
+    modules: Record<string, { files: string[]; root?: string }>;
+  };
+  const modules: Modules = {};
+  for (const [name, spec] of Object.entries(config.modules)) {
+    modules[name] = await loadFunctions(spec.files);
+  }
+  return modules;
+}
 
 export async function serve(
   input: NodeJS.ReadableStream = process.stdin,
